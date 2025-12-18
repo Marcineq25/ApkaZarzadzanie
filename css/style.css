@@ -114,7 +114,6 @@ textarea {
 	align-items: center;
 	flex-wrap: wrap;
 	gap: 15px;
-	margin-bottom: 20px;
 	padding: 20px 30px 10px 30px;
 	background: #f0f2f5;
 }
@@ -338,21 +337,21 @@ li.minus .kwota span {
    6. WIDOK: ANALIZA (WYKRESY)
    ========================================= */
 #widok-analiza {
-	flex: 1; /* Zajmij całą wolną przestrzeń pod nagłówkiem */
+	flex: 1;
 	display: flex;
 	flex-direction: column;
-	overflow: hidden !important; /* Zero scrolla na desktopie */
-	padding-bottom: 20px; /* Mały margines od dołu ekranu */
-	height: 100%; /* Ważne dla Firefoxa */
+	overflow: hidden !important;
+	padding-bottom: 20px;
+	height: 100%;
 }
 
 /* 2. Siatka wykresów */
 .grid-analiza {
 	display: grid;
-	grid-template-columns: 1fr 1fr; /* 50% szerokości każda */
-	grid-template-rows: 1fr 1fr; /* 50% wysokości każda (To jest klucz!) */
-	gap: 20px; /* Odstępy między kartami */
-	height: 100%; /* Rozciągnij siatkę na całą wysokość widoku */
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: 1fr 1fr;
+	gap: 20px;
+	height: 100%;
 	width: 100%;
 }
 
@@ -360,23 +359,23 @@ li.minus .kwota span {
 .grid-analiza .karta {
 	display: flex;
 	flex-direction: column;
-	height: 100%; /* Wypełnij wiersz siatki */
+	height: 100%;
 	margin-bottom: 0;
-	min-height: 0; /* Pozwala karcie się kurczyć, gdy ekran jest mały */
-	padding: 15px; /* Wewnętrzny odstęp */
+	min-height: 0;
+	padding: 15px;
 }
 
 /* 4. Tytuł wykresu */
 .grid-analiza .karta h3,
 .grid-analiza .naglowek-wykresu {
-	flex-shrink: 0; /* Tytuł ma stałą wysokość, nie kurczy się */
+	flex-shrink: 0;
 	margin-bottom: 10px;
 }
 
 .wrapper-wykresu {
-	flex: 1; /* Zajmij całe dostępne miejsce pod tytułem */
+	flex: 1;
 	width: 100%;
-	min-height: 0; /* CRITICAL: To pozwala wykresom Chart.js się zmniejszać! */
+	min-height: 0;
 	position: relative;
 }
 
@@ -411,27 +410,49 @@ li.minus .kwota span {
    ========================================= */
 .ustawienia-container {
 	max-width: 800px;
+	width: 100%;
 }
+
+/* POPRAWKA: Pole tekstowe teraz się rozciąga i jest widoczne */
 .dodaj-kategorie-wrapper {
 	display: flex;
 	gap: 10px;
+	align-items: center; /* Wyrównanie w pionie */
 	margin-bottom: 20px;
 	border-bottom: 1px solid #eee;
 	padding-bottom: 20px;
+	width: 100%;
 }
+
 .dodaj-kategorie-wrapper input {
-	flex: 2;
+	flex: 2; /* Rozciąga pole tekstowe (naprawa zniknięcia) */
+	min-width: 0; /* Zapobiega wypychaniu kontenera */
 }
+
+.dodaj-kategorie-wrapper select {
+	flex: 1;
+}
+
+.dodaj-kategorie-wrapper button {
+	width: auto; /* Przycisk nie musi zajmować całej szerokości w tym rzędzie */
+	padding: 10px 20px;
+}
+
+/* POPRAWKA: Kolumny zawijają się na telefonie (nie wyjeżdżają poza ekran) */
 .kolumny-kategorii {
 	display: flex;
+	flex-wrap: wrap; /* Pozwala na przeskok kolumny pod spód na mobile */
 	gap: 20px;
 }
+
 .kolumna {
 	flex: 1;
+	min-width: 250px; /* Minimalna szerokość kolumny przed zawinięciem */
 	background: #f9f9f9;
-	padding: 10px;
+	padding: 15px;
 	border-radius: 8px;
 }
+
 .kolumna h4 {
 	margin-top: 0;
 	text-align: center;
@@ -439,18 +460,29 @@ li.minus .kwota span {
 	border-bottom: 1px solid #ddd;
 	padding-bottom: 5px;
 }
+
+/* Lista w ustawieniach - przyciski usuwania */
+.lista-prosta li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 0;
+	border-bottom: 1px solid #eee;
+}
+
 .lista-prosta li button {
 	background: #e74c3c;
 	color: white;
 	border: none;
-	padding: 4px 8px;
+	padding: 5px 10px;
 	border-radius: 4px;
 	font-size: 11px;
 	cursor: pointer;
+	width: auto; /* Naprawa szerokości przycisku usuń */
 }
 
 /* =========================================
-   8. MINI RAPORT (LEWY PANEL) - NOWOŚĆ
+   8. MINI RAPORT (LEWY PANEL) 
    ========================================= */
 .mini-raport {
 	display: flex;
@@ -468,14 +500,12 @@ li.minus .kwota span {
 	font-size: 14px;
 }
 
-/* Styl dla przychodów (delikatne zielone tło) */
 .raport-linia.przychod {
 	background-color: #f0fff4;
 	border-left: 4px solid #48bb78;
 	color: #2f855a;
 }
 
-/* Styl dla wydatków (delikatne czerwone tło) */
 .raport-linia.wydatek {
 	background-color: #fff5f5;
 	border-left: 4px solid #f56565;
@@ -490,23 +520,20 @@ li.minus .kwota span {
    8.5. TABLET / MAŁY LAPTOP (769px - 1200px)
    ========================================= */
 @media (max-width: 1200px) {
-	/* 1. Sidebar zmienia się w OFF-CANVAS (chowany) */
 	.sidebar {
 		position: fixed;
 		top: 0;
 		left: 0;
 		height: 100vh;
 		z-index: 2000;
-		transform: translateX(-100%); /* Domyślnie schowany */
+		transform: translateX(-100%);
 		box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
 	}
 
-	/* Klasa dodawana przez JS po kliknięciu hamburgera */
 	.sidebar.aktywny {
 		transform: translateX(0) !important;
 	}
 
-	/* 2. Pokaż przycisk Hamburgera */
 	#mobile-menu-btn {
 		display: block !important;
 		position: fixed;
@@ -523,7 +550,6 @@ li.minus .kwota span {
 		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 	}
 
-	/* 3. Overlay (tło) musi działać */
 	#overlay {
 		position: fixed;
 		top: 0;
@@ -537,17 +563,12 @@ li.minus .kwota span {
 		display: none;
 	}
 
-	/* 4. Dostosowanie treści głównej */
-	/* Robimy miejsce na przycisk hamburgera u góry */
 	.main-content {
 		padding-top: 60px;
 	}
 
-	/* 5. WAŻNE: Układ pozostaje DESKTOPOWY (Grid) */
-	/* Nie zmieniamy .grid-layout na flex-column, więc zostaje dwie kolumny */
-	/* Jedynie upewniamy się, że grid się mieści */
 	.grid-layout {
-		grid-template-columns: 300px 1fr; /* Troszkę zwężamy lewą kolumnę (z 350 na 300), żeby było luźniej */
+		grid-template-columns: 300px 1fr;
 	}
 }
 
@@ -555,7 +576,6 @@ li.minus .kwota span {
    9. MOBILE / RWD (Max width 768px)
    ========================================= */
 @media (max-width: 768px) {
-	/* ODBLOKOWANIE PRZEWIJANIA STRONY NA MOBILE */
 	body,
 	html,
 	.app-layout,
@@ -570,7 +590,6 @@ li.minus .kwota span {
 		padding: 0 15px 80px 15px;
 	}
 
-	/* NAGŁÓWEK */
 	.top-bar {
 		padding: 10px 15px;
 		flex-direction: column;
@@ -585,7 +604,6 @@ li.minus .kwota span {
 		justify-content: flex-end;
 	}
 
-	/* SIDEBAR (MENU) */
 	.sidebar {
 		position: fixed;
 		top: 0;
@@ -600,7 +618,6 @@ li.minus .kwota span {
 		transform: translateX(0) !important;
 	}
 
-	/* MENU HAMBURGER & OVERLAY */
 	#mobile-menu-btn {
 		display: block !important;
 		position: fixed;
@@ -632,46 +649,37 @@ li.minus .kwota span {
 		padding-top: 60px;
 	}
 
-	/* UKŁAD PULPITU (PIONOWY) */
 	.grid-layout {
 		display: flex;
 		flex-direction: column;
 	}
 
-	/* --- NOWA KOLEJNOŚĆ ELEMENTÓW --- */
-	/* Używamy display: contents, żeby "wyjąć" karty z ich kontenerów (panel-lewy/prawy) */
 	.panel-prawy,
 	.panel-lewy {
 		display: contents;
 	}
 
-	/* 1. SALDO (Na samej górze) */
 	.bilans-karta {
 		order: 1;
 	}
 
-	/* 2. PODSUMOWANIE (Drugie dziecko lewego panelu) */
 	.panel-lewy .karta:last-child {
 		order: 2;
-		margin-bottom: 15px; /* Odstęp od formularza */
+		margin-bottom: 15px;
 	}
 
-	/* 3. FORMULARZ (Pierwsze dziecko lewego panelu) */
 	.panel-lewy .karta:first-child {
 		order: 3;
 		margin-bottom: 20px;
 	}
 
-	/* 4. LISTA (Na końcu) */
 	.karta-lista {
 		order: 4;
 		max-height: 450px;
 		display: flex !important;
 		flex-direction: column;
 	}
-	/* -------------------------------- */
 
-	/* LISTA TRANSAKCJI WEWNĘTRZNA */
 	.scroll-wrapper {
 		flex: 1;
 		max-height: 350px !important;
@@ -679,7 +687,6 @@ li.minus .kwota span {
 		border-top: 1px solid #f0f0f0;
 	}
 
-	/* UKŁAD ANALIZY (PIONOWY) */
 	.grid-analiza {
 		grid-template-columns: 1fr;
 	}
@@ -688,6 +695,11 @@ li.minus .kwota span {
 	}
 	.wrapper-wykresu {
 		min-height: 250px !important;
+	}
+
+	/* FIX: Ustawienia kontener na mobile */
+	.ustawienia-container {
+		max-width: 100%;
 	}
 }
 
