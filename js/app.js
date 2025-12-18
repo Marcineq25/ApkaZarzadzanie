@@ -28,6 +28,9 @@ const inputKategoria = document.getElementById("kategoria");
 const inputFiltrData = document.getElementById("filtr-data");
 const selectFiltrRok = document.getElementById("filtr-rok-select");
 const checkboxRok = document.getElementById("filtr-rok");
+const inputSzukaj = document.getElementById("szukaj-transakcji");
+const selectFiltrTyp = document.getElementById("filtr-typ");
+const selectSortuj = document.getElementById("sortuj-wedlug");
 
 // Wykresy (Analiza)
 const btnWydatki = document.getElementById("btn-pokaz-wydatki");
@@ -92,16 +95,22 @@ let idEdytowanejTransakcji = null;
 const domyslneUstawienia = {
 	kategorie: {
 		wydatek: [
-			"jedzenie",
-			"mieszkanie",
-			"transport",
-			"rozrywka",
-			"zdrowie",
-			"inne",
+			{ nazwa: "jedzenie", limit: 0 },
+			{ nazwa: "mieszkanie", limit: 0 },
+			{ nazwa: "transport", limit: 0 },
+			{ nazwa: "rozrywka", limit: 0 },
+			{ nazwa: "zdrowie", limit: 0 },
+			{ nazwa: "inne", limit: 0 },
 		],
-		przychod: ["wynagrodzenie", "sprzedaż", "zwrot podatku", "inne"],
+		przychod: [
+			{ nazwa: "wynagrodzenie", limit: 0 },
+			{ nazwa: "sprzedaż", limit: 0 },
+			{ nazwa: "zwrot podatku", limit: 0 },
+			{ nazwa: "inne", limit: 0 },
+		],
 	},
 };
+
 let ustawienia = JSON.parse(JSON.stringify(domyslneUstawienia));
 
 // ==========================================
@@ -247,6 +256,10 @@ checkboxRok.addEventListener("change", () => {
 	odswiezWidoki();
 });
 
+inputSzukaj.addEventListener("input", odswiezWidoki);
+selectFiltrTyp.addEventListener("change", odswiezWidoki);
+selectSortuj.addEventListener("change", odswiezWidoki);
+
 // --- POPRAWIONE OBSŁUGIWANIE PRZYCISKÓW WYKRESÓW ---
 
 // Wykres Kołowy - Odświeżamy tylko ten wykres!
@@ -375,9 +388,12 @@ window.usunTransakcje = function (id) {
 		aktualizujWidok();
 	}
 };
+
 window.usunKategorie = function (t, n) {
-	if (confirm("Usunąć?")) {
-		ustawienia.kategorie[t] = ustawienia.kategorie[t].filter(k => k !== n);
+	if (confirm("Usunąć kategorię: " + n + "?")) {
+		ustawienia.kategorie[t] = ustawienia.kategorie[t].filter(
+			k => k.nazwa !== n
+		);
 		zapiszUstawienia();
 		renderujListyKategoriiWUstawieniach();
 	}
@@ -385,22 +401,32 @@ window.usunKategorie = function (t, n) {
 
 function aktualizujSelectKategorii() {
 	const t = inputTyp.value;
-	const kat = ustawienia.kategorie[t].sort((a, b) => a.localeCompare(b));
+	const kat = ustawienia.kategorie[t].sort((a, b) =>
+		a.nazwa.localeCompare(b.nazwa)
+	);
 	inputKategoria.innerHTML = "";
 	kat.forEach(k => {
 		const o = document.createElement("option");
-		o.value = k;
-		o.innerText = k.charAt(0).toUpperCase() + k.slice(1);
+		o.value = k.nazwa;
+		o.innerText = k.nazwa.charAt(0).toUpperCase() + k.nazwa.slice(1);
 		inputKategoria.appendChild(o);
 	});
 }
+
 function renderujListyKategoriiWUstawieniach() {
 	const gen = (t, el) => {
 		el.innerHTML = "";
 		ustawienia.kategorie[t]
-			.sort((a, b) => a.localeCompare(b))
+			.sort((a, b) => a.nazwa.localeCompare(b.nazwa))
 			.forEach(k => {
-				el.innerHTML += `<li><span>${k}</span><button onclick="usunKategorie('${t}','${k}')">Usuń</button></li>`;
+				const limitInfo =
+					t === "wydatek" && k.limit > 0
+						? ` (Limit: ${formatujKwote(k.limit)})`
+						: "";
+				el.innerHTML += `<li>
+                    <span>${k.nazwa}${limitInfo}</span>
+                    <button onclick="usunKategorie('${t}','${k.nazwa}')">Usuń</button>
+                </li>`;
 			});
 	};
 	gen("wydatek", listaKategoriiWydatki);
@@ -408,9 +434,42 @@ function renderujListyKategoriiWUstawieniach() {
 }
 
 function pobierzTransakcje() {
-	if (checkboxRok.checked)
-		return transakcje.filter(t => t.data.startsWith(selectFiltrRok.value));
-	return transakcje.filter(t => t.data.startsWith(inputFiltrData.value));
+	let dane = [...transakcje]; // Kopia bazy
+
+	// A. Filtrowanie Daty (Twoja stara logika)
+	if (checkboxRok.checked) {
+		dane = dane.filter(t => t.data.startsWith(selectFiltrRok.value));
+	} else {
+		dane = dane.filter(t => t.data.startsWith(inputFiltrData.value));
+	}
+
+	// B. Filtrowanie Typu (NOWE)
+	const wybranyTyp = selectFiltrTyp.value;
+	if (wybranyTyp !== "wszystkie") {
+		dane = dane.filter(t => t.typ === wybranyTyp);
+	}
+
+	// C. Wyszukiwarka (NOWE)
+	const fraza = inputSzukaj.value.toLowerCase().trim();
+	if (fraza) {
+		dane = dane.filter(
+			t =>
+				t.opis.toLowerCase().includes(fraza) ||
+				t.kategoria.toLowerCase().includes(fraza)
+		);
+	}
+
+	// D. Sortowanie (NOWE)
+	const sortTyp = selectSortuj.value;
+	dane.sort((a, b) => {
+		if (sortTyp === "data-nowe") return new Date(b.data) - new Date(a.data);
+		if (sortTyp === "data-stare") return new Date(a.data) - new Date(b.data);
+		if (sortTyp === "kwota-wysoka") return b.kwota - a.kwota;
+		if (sortTyp === "kwota-niska") return a.kwota - b.kwota;
+		return 0;
+	});
+
+	return dane;
 }
 
 // --- GŁÓWNA FUNKCJA RENDERUJĄCA ---
@@ -443,7 +502,6 @@ function aktualizujWidok() {
 	let sumaWyd = 0;
 
 	listaHTML.innerHTML = "";
-	widoczne.sort((a, b) => (a.data > b.data ? -1 : 1));
 
 	widoczne.forEach(t => {
 		if (t.typ === "przychod") {

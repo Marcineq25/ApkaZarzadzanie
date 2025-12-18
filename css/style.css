@@ -131,6 +131,47 @@ textarea {
 	gap: 10px;
 }
 
+.filtry-grupa {
+	flex: 1 1 350px; /* Grupa ma swoją minimalną szerokość */
+	display: flex;
+	gap: 10px;
+	order: 2;
+}
+
+.filtry-grupa select {
+	flex: 1; /* Selektory wewnątrz grupy zawsze dzielą się po połowie */
+	min-width: 0; /* Pozwala im się zwężać płynnie */
+}
+
+#kontener-filtrow {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+	background: white;
+	padding: 15px;
+	border-radius: 12px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+	margin-bottom: 20px;
+	align-items: center;
+}
+
+#szukaj-transakcji {
+	flex: 1 1 300px; /* Może rosnąć, ale dąży do 300px min. */
+	order: 1;
+}
+
+#filtr-typ,
+#sortuj-wedlug {
+	flex: 1 1 150px; /* Oba selektory mają te same zasady */
+}
+
+/* Efekt najechania dla interaktywności */
+#kontener-filtrow select:hover,
+#kontener-filtrow input:focus {
+	border-color: #4a90e2;
+	outline: none;
+}
+
 /* =========================================
    4. KARTY I ELEMENTY UI
    ========================================= */
@@ -530,7 +571,7 @@ li.minus .kwota span {
 }
 
 /* =========================================
-   8.5. TABLET / MAŁY LAPTOP (769px - 1200px)
+    8.5. TABLET / MAŁY LAPTOP (769px - 1200px)
    ========================================= */
 @media (max-width: 1200px) {
 	.sidebar {
@@ -583,10 +624,32 @@ li.minus .kwota span {
 	.grid-layout {
 		grid-template-columns: 300px 1fr;
 	}
+
+	/* POPRAWKA FILTRÓW DLA TABLETU */
+	#kontener-filtrow {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+	}
+
+	#szukaj-transakcji {
+		flex: 1 1 100% !important; /* Pełna szerokość na górze */
+		order: 1;
+	}
+
+	#filtr-typ {
+		flex: 1;
+		order: 2;
+	}
+
+	#sortuj-wedlug {
+		flex: 1;
+		order: 3;
+	}
 }
 
 /* =========================================
-   9. MOBILE / RWD (Max width 768px)
+    9. MOBILE / RWD (Max width 768px)
    ========================================= */
 @media (max-width: 768px) {
 	body,
@@ -612,9 +675,30 @@ li.minus .kwota span {
 		font-size: 20px;
 		white-space: normal;
 	}
-	.filtry {
-		width: 100%;
-		justify-content: flex-end;
+
+	/* POPRAWKA FILTRÓW DLA MOBILE */
+	#kontener-filtrow {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 10px;
+		order: 4; /* Pozycjonowanie nad historią operacji */
+		margin-top: 0px;
+		margin-bottom: 20px;
+	}
+
+	#szukaj-transakcji {
+		flex: 1 1 100% !important; /* Pełna szerokość na górze */
+		order: 1;
+	}
+
+	#filtr-typ {
+		flex: 1;
+		order: 2;
+	}
+
+	#sortuj-wedlug {
+		flex: 1;
+		order: 3;
 	}
 
 	.sidebar {
@@ -687,7 +771,7 @@ li.minus .kwota span {
 	}
 
 	.karta-lista {
-		order: 4;
+		order: 5; /* Historia operacji pod filtrami */
 		max-height: 450px;
 		display: flex !important;
 		flex-direction: column;
@@ -710,7 +794,6 @@ li.minus .kwota span {
 		min-height: 250px !important;
 	}
 
-	/* FIX: Ustawienia kontener na mobile */
 	.ustawienia-container {
 		max-width: 100%;
 	}

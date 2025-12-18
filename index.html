@@ -12,7 +12,6 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
     <link rel="apple-touch-icon" href="icon-512.png">
-
 </head>
 
 <body>
@@ -42,13 +41,12 @@
             <header class="top-bar" id="glowny-naglowek">
                 <h1 id="tytul-strony">Pulpit finansowy</h1>
 
-                <div class="filtry" id="kontener-filtrow">
-                    <label>Okres:</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
+                <div class="okres-nawigacja">
+                    <div class="okres-wrapper" style="display: flex; gap: 10px; align-items: center;">
                         <input type="month" id="filtr-data">
                         <select id="filtr-rok-select" class="ukryty"></select>
                         <label
-                            style="font-size: 13px; display: flex; align-items: center; cursor: pointer; white-space: nowrap;">
+                            style="font-size: 12px; display: flex; align-items: center; cursor: pointer; white-space: nowrap;">
                             <input type="checkbox" id="filtr-rok" style="width: auto; margin-right: 5px;">
                             Cały rok
                         </label>
@@ -114,6 +112,26 @@
                             <h2 id="tytul-salda">Saldo w tym miesiącu:</h2>
                             <div id="stan-konta" class="wielka-liczba">0.00 zł</div>
                         </div>
+
+                        <div class="filtry" id="kontener-filtrow">
+                            <input type="text" id="szukaj-transakcji" placeholder="Szukaj w historii...">
+
+                            <div class="filtry-grupa">
+                                <select id="filtr-typ">
+                                    <option value="wszystkie">Wszystkie typy</option>
+                                    <option value="wydatek">Tylko wydatki</option>
+                                    <option value="przychod">Tylko przychody</option>
+                                </select>
+
+                                <select id="sortuj-wedlug">
+                                    <option value="data-nowe">Data: Najnowsze</option>
+                                    <option value="data-stare">Data: Najstarsze</option>
+                                    <option value="kwota-wysoka">Kwota: Najwyższa</option>
+                                    <option value="kwota-niska">Kwota: Najniższa</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div class="karta karta-lista">
                             <h3>Historia operacji</h3>
                             <div class="scroll-wrapper">
@@ -126,7 +144,6 @@
 
             <section id="widok-analiza" class="widok ukryty">
                 <div class="grid-analiza">
-
                     <div class="karta">
                         <div class="naglowek-wykresu">
                             <h3>Struktura: <span id="tytul-wykresu">Wydatki</span></h3>
@@ -166,7 +183,6 @@
                             <canvas id="wykresRanking"></canvas>
                         </div>
                     </div>
-
                 </div>
             </section>
 
@@ -180,8 +196,7 @@
                         <div class="form-row">
                             <button id="btn-eksport" style="background-color: #27ae60;">💾 Pobierz (Backup)</button>
                             <input type="file" id="input-import" accept=".json" style="display: none;">
-                            <button id="btn-import-trigger" style="background-color: #e67e22;">📂 Wgraj z
-                                pliku</button>
+                            <button id="btn-import-trigger" style="background-color: #e67e22;">📂 Wgraj z pliku</button>
                         </div>
                     </div>
 
