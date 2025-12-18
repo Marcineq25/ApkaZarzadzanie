@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mój Budżet Osobisty</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <button id="mobile-menu-btn">☰</button>
+    <div id="overlay" class="ukryty"></div>
+
+    <div class="app-layout">
+
+        <nav class="sidebar">
+            <div class="logo">💰Budżet</div>
+            <ul class="menu">
+                <li class="aktywna" id="menu-pulpit">
+                    <span class="ikona">🏠</span> Pulpit
+                </li>
+                <li id="menu-analiza">
+                    <span class="ikona">📈</span> Analiza
+                </li>
+                <li id="menu-ustawienia">
+                    <span class="ikona">⚙️</span> Ustawienia
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+
+            <header class="top-bar" id="glowny-naglowek">
+                <h1 id="tytul-strony">Pulpit finansowy</h1>
+
+                <div class="filtry" id="kontener-filtrow">
+                    <label>Okres:</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="month" id="filtr-data">
+                        <select id="filtr-rok-select" class="ukryty"></select>
+                        <label
+                            style="font-size: 13px; display: flex; align-items: center; cursor: pointer; white-space: nowrap;">
+                            <input type="checkbox" id="filtr-rok" style="width: auto; margin-right: 5px;">
+                            Cały rok
+                        </label>
+                    </div>
+                </div>
+            </header>
+
+            <section id="widok-pulpit" class="widok">
+                <div class="grid-layout">
+
+                    <aside class="panel-lewy">
+                        <div class="karta">
+                            <h3>Nowa transakcja</h3>
+                            <form id="formularz">
+                                <div class="form-row">
+                                    <div class="input-group">
+                                        <label>Data</label>
+                                        <input type="date" id="data" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Kwota</label>
+                                        <input type="number" id="kwota" placeholder="0.00" step="0.01" required>
+                                    </div>
+                                </div>
+                                <div class="input-group">
+                                    <label>Opis</label>
+                                    <input type="text" id="tekst" placeholder="np. Zakupy" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="input-group">
+                                        <label>Typ</label>
+                                        <select id="typ">
+                                            <option value="wydatek">Wydatek</option>
+                                            <option value="przychod">Przychód</option>
+                                        </select>
+                                    </div>
+                                    <div class="input-group">
+                                        <label>Kategoria</label>
+                                        <select id="kategoria"></select>
+                                    </div>
+                                </div>
+                                <button type="submit" id="btn-submit">Dodaj</button>
+                            </form>
+                        </div>
+
+                        <div class="karta" style="flex: 0;">
+                            <h3>Podsumowanie okresu</h3>
+                            <div class="mini-raport">
+                                <div class="raport-linia przychod">
+                                    <span>Przychody</span>
+                                    <strong id="suma-przychodow">0.00 zł</strong>
+                                </div>
+                                <div class="raport-linia wydatek">
+                                    <span>Wydatki</span>
+                                    <strong id="suma-wydatkow">0.00 zł</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <div class="panel-prawy">
+                        <div class="karta bilans-karta">
+                            <h2 id="tytul-salda">Saldo w tym miesiącu:</h2>
+                            <div id="stan-konta" class="wielka-liczba">0.00 zł</div>
+                        </div>
+                        <div class="karta karta-lista">
+                            <h3>Historia operacji</h3>
+                            <div class="scroll-wrapper">
+                                <ul id="lista"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="widok-analiza" class="widok ukryty">
+                <div class="grid-analiza">
+
+                    <div class="karta">
+                        <div class="naglowek-wykresu">
+                            <h3>Struktura: <span id="tytul-wykresu">Wydatki</span></h3>
+                            <div class="przelacznik-wykresu">
+                                <button id="btn-pokaz-wydatki" class="aktywny">Wydatki</button>
+                                <button id="btn-pokaz-przychody">Przychody</button>
+                            </div>
+                        </div>
+                        <div class="wrapper-wykresu">
+                            <canvas id="mojWykres"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="karta">
+                        <h3>Trend salda (Przepływ gotówki)</h3>
+                        <div class="wrapper-wykresu">
+                            <canvas id="wykresLiniowy"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="karta">
+                        <h3>Bilans: Przychody vs Wydatki</h3>
+                        <div class="wrapper-wykresu">
+                            <canvas id="wykresSlupkowy"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="karta">
+                        <div class="naglowek-wykresu">
+                            <h3>Ranking: <span id="tytul-rankingu">Wydatki</span></h3>
+                            <div class="przelacznik-wykresu">
+                                <button id="btn-ranking-wydatki" class="aktywny">Wydatki</button>
+                                <button id="btn-ranking-przychody">Przychody</button>
+                            </div>
+                        </div>
+                        <div class="wrapper-wykresu">
+                            <canvas id="wykresRanking"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <section id="widok-ustawienia" class="widok ukryty">
+                <div class="ustawienia-container">
+                    <div class="karta">
+                        <h3>Kopia zapasowa danych</h3>
+                        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+                            Pobierz swoje dane do pliku JSON.
+                        </p>
+                        <div class="form-row">
+                            <button id="btn-eksport" style="background-color: #27ae60;">💾 Pobierz (Backup)</button>
+                            <input type="file" id="input-import" accept=".json" style="display: none;">
+                            <button id="btn-import-trigger" style="background-color: #e67e22;">📂 Wgraj z
+                                pliku</button>
+                        </div>
+                    </div>
+
+                    <div class="karta">
+                        <h3>Zarządzanie Kategoriami</h3>
+                        <div class="dodaj-kategorie-wrapper">
+                            <input type="text" id="nowa-kategoria-input" placeholder="Nazwa kategorii...">
+                            <select id="nowa-kategoria-typ">
+                                <option value="wydatek">Wydatek</option>
+                                <option value="przychod">Przychód</option>
+                            </select>
+                            <button id="btn-dodaj-kategorie">Dodaj</button>
+                        </div>
+                        <div class="kolumny-kategorii">
+                            <div class="kolumna">
+                                <h4>Wydatki</h4>
+                                <ul id="lista-kategorii-wydatki" class="lista-prosta"></ul>
+                            </div>
+                            <div class="kolumna">
+                                <h4>Przychody</h4>
+                                <ul id="lista-kategorii-przychody" class="lista-prosta"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+
+</html>
