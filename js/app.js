@@ -109,24 +109,34 @@ const domyslneUstawienia = {
 			{ nazwa: "inne", limit: 0 },
 		],
 	},
+	konfiguracjaPulpitu: {
+		pokazLimity: true,
+		pokazCelePrzychodow: false,
+		pokazMiniWykres: true,
+	},
 };
 
 let ustawienia = JSON.parse(JSON.stringify(domyslneUstawienia));
 
 // ==========================================
-// 3. START APLIKACJI
+// 3. START APLIKACJI (ZSCALONA FUNKCJA)
 // ==========================================
 
 function startAplikacji() {
+	// A. Wczytywanie danych
 	const zapTr = localStorage.getItem("transakcje");
 	if (zapTr) transakcje = JSON.parse(zapTr);
 
 	const zapUst = localStorage.getItem("ustawienia");
 	if (zapUst) {
 		const wczytane = JSON.parse(zapUst);
-		if (!Array.isArray(wczytane.kategorie)) ustawienia = wczytane;
+		// Zabezpieczenie: sprawdzamy czy struktura kategorii jest poprawna (tablica obiektów)
+		if (wczytane.kategorie && Array.isArray(wczytane.kategorie.wydatek)) {
+			ustawienia = wczytane;
+		}
 	}
 
+	// B. Inicjalizacja filtrów daty
 	const obecnyRok = new Date().getFullYear();
 	selectFiltrRok.innerHTML = "";
 	for (let rok = 2020; rok <= obecnyRok + 1; rok++) {
@@ -145,8 +155,40 @@ function startAplikacji() {
 	inputFiltrData.value = dzis.toISOString().slice(0, 7);
 	selectFiltrRok.value = obecnyRok;
 
+	// C. Konfiguracja Pulpitu (Ptaszki) - PRZENIESIONE TUTAJ
+	const checkLimity = document.getElementById("check-pokaz-limity");
+	const checkCele = document.getElementById("check-pokaz-cele");
+
+	if (checkLimity && checkCele) {
+		// Ustawiamy stan wizualny
+		checkLimity.checked = ustawienia.konfiguracjaPulpitu
+			? ustawienia.konfiguracjaPulpitu.pokazLimity
+			: true;
+		checkCele.checked = ustawienia.konfiguracjaPulpitu
+			? ustawienia.konfiguracjaPulpitu.pokazCelePrzychodow
+			: false;
+
+		// Nasłuchujemy zmian
+		checkLimity.addEventListener("change", e => {
+			if (!ustawienia.konfiguracjaPulpitu) ustawienia.konfiguracjaPulpitu = {};
+			ustawienia.konfiguracjaPulpitu.pokazLimity = e.target.checked;
+			zapiszUstawienia();
+			aktualizujWidok(); // Odświeżamy widok, żeby paski zniknęły/pojawiły się od razu
+		});
+
+		checkCele.addEventListener("change", e => {
+			if (!ustawienia.konfiguracjaPulpitu) ustawienia.konfiguracjaPulpitu = {};
+			ustawienia.konfiguracjaPulpitu.pokazCelePrzychodow = e.target.checked;
+			zapiszUstawienia();
+		});
+	}
+
+	// D. Uruchomienie widoku
 	zmienWidok("pulpit");
 }
+
+// Inicjalizacja przy ładowaniu strony
+startAplikacji();
 
 // ==========================================
 // 4. NAWIGACJA
@@ -260,15 +302,12 @@ inputSzukaj.addEventListener("input", odswiezWidoki);
 selectFiltrTyp.addEventListener("change", odswiezWidoki);
 selectSortuj.addEventListener("change", odswiezWidoki);
 
-// --- POPRAWIONE OBSŁUGIWANIE PRZYCISKÓW WYKRESÓW ---
-
-// Wykres Kołowy - Odświeżamy tylko ten wykres!
+// --- WYKRESY ---
 btnWydatki.addEventListener("click", () => {
 	aktualnyTypWykresu = "wydatek";
 	btnWydatki.classList.add("aktywny");
 	btnPrzychody.classList.remove("aktywny");
 	tytulWykresu.innerText = "Wydatki";
-	// ZAMIAST odswiezWidoki(), wywołujemy tylko konkretne rysowanie
 	rysujWykresKolowy();
 });
 btnPrzychody.addEventListener("click", () => {
@@ -276,17 +315,14 @@ btnPrzychody.addEventListener("click", () => {
 	btnPrzychody.classList.add("aktywny");
 	btnWydatki.classList.remove("aktywny");
 	tytulWykresu.innerText = "Przychody";
-	// ZAMIAST odswiezWidoki()
 	rysujWykresKolowy();
 });
 
-// Ranking - Odświeżamy tylko ten wykres!
 btnRankingWydatki.addEventListener("click", () => {
 	aktualnyTypRankingu = "wydatek";
 	btnRankingWydatki.classList.add("aktywny");
 	btnRankingPrzychody.classList.remove("aktywny");
 	tytulRankingu.innerText = "Wydatki";
-	// ZAMIAST odswiezWidoki()
 	rysujRanking();
 });
 btnRankingPrzychody.addEventListener("click", () => {
@@ -294,11 +330,10 @@ btnRankingPrzychody.addEventListener("click", () => {
 	btnRankingPrzychody.classList.add("aktywny");
 	btnRankingWydatki.classList.remove("aktywny");
 	tytulRankingu.innerText = "Przychody";
-	// ZAMIAST odswiezWidoki()
 	rysujRanking();
 });
-// ---------------------------------------------------
 
+// --- BACKUP ---
 btnEksport.addEventListener("click", () => {
 	const blob = new Blob([JSON.stringify({ transakcje, ustawienia }, null, 2)], {
 		type: "application/json",
@@ -322,7 +357,7 @@ inputImport.addEventListener("change", e => {
 				ustawienia = d.ustawienia;
 				zapiszDane();
 				zapiszUstawienia();
-				startAplikacji();
+				startAplikacji(); // Przeładuje widok i ptaszki
 				alert("Gotowe!");
 			}
 		} catch (err) {
@@ -331,16 +366,6 @@ inputImport.addEventListener("change", e => {
 	};
 	r.readAsText(f);
 	e.target.value = "";
-});
-btnDodajKategorie.addEventListener("click", () => {
-	const n = inputNowaKategoria.value.trim().toLowerCase();
-	const t = selectNowaKategoriaTyp.value;
-	if (n && !ustawienia.kategorie[t].includes(n)) {
-		ustawienia.kategorie[t].push(n);
-		zapiszUstawienia();
-		renderujListyKategoriiWUstawieniach();
-		inputNowaKategoria.value = "";
-	}
 });
 
 function toggleMenu() {
@@ -389,67 +414,136 @@ window.usunTransakcje = function (id) {
 	}
 };
 
-window.usunKategorie = function (t, n) {
-	if (confirm("Usunąć kategorię: " + n + "?")) {
-		ustawienia.kategorie[t] = ustawienia.kategorie[t].filter(
-			k => k.nazwa !== n
-		);
-		zapiszUstawienia();
-		renderujListyKategoriiWUstawieniach();
-	}
-};
-
+// --- Wybór kategorii w formularzu ---
 function aktualizujSelectKategorii() {
 	const t = inputTyp.value;
-	const kat = ustawienia.kategorie[t].sort((a, b) =>
-		a.nazwa.localeCompare(b.nazwa)
-	);
-	inputKategoria.innerHTML = "";
-	kat.forEach(k => {
-		const o = document.createElement("option");
-		o.value = k.nazwa;
-		o.innerText = k.nazwa.charAt(0).toUpperCase() + k.nazwa.slice(1);
-		inputKategoria.appendChild(o);
-	});
+	// Sprawdzamy czy kategoria istnieje w obiekcie, sortujemy po nazwie
+	if (ustawienia.kategorie && ustawienia.kategorie[t]) {
+		const kat = ustawienia.kategorie[t].sort((a, b) =>
+			a.nazwa.localeCompare(b.nazwa)
+		);
+
+		inputKategoria.innerHTML = "";
+		kat.forEach(k => {
+			const o = document.createElement("option");
+			o.value = k.nazwa;
+			o.innerText = k.nazwa.charAt(0).toUpperCase() + k.nazwa.slice(1);
+			inputKategoria.appendChild(o);
+		});
+	}
 }
 
+// --- Wyświetlanie listy kategorii w ustawieniach (z edycją limitów) ---
 function renderujListyKategoriiWUstawieniach() {
 	const gen = (t, el) => {
 		el.innerHTML = "";
+		if (!ustawienia.kategorie[t]) return;
+
 		ustawienia.kategorie[t]
 			.sort((a, b) => a.nazwa.localeCompare(b.nazwa))
 			.forEach(k => {
-				const limitInfo =
-					t === "wydatek" && k.limit > 0
-						? ` (Limit: ${formatujKwote(k.limit)})`
-						: "";
-				el.innerHTML += `<li>
-                    <span>${k.nazwa}${limitInfo}</span>
-                    <button onclick="usunKategorie('${t}','${k.nazwa}')">Usuń</button>
-                </li>`;
+				const li = document.createElement("li");
+
+				// Nazwa
+				const span = document.createElement("span");
+				span.innerText = k.nazwa.charAt(0).toUpperCase() + k.nazwa.slice(1);
+
+				// Akcje
+				const divAkcje = document.createElement("div");
+				divAkcje.style.display = "flex";
+				divAkcje.style.alignItems = "center";
+				divAkcje.style.gap = "5px";
+
+				// Input limitu
+				const inputLimit = document.createElement("input");
+				inputLimit.type = "number";
+				inputLimit.value = k.limit === 0 ? "" : k.limit;
+				inputLimit.placeholder = "0";
+				inputLimit.className = "input-limit-mini"; // opcjonalnie dodaj klasę CSS
+				inputLimit.style.width = "60px";
+				inputLimit.style.padding = "4px";
+				inputLimit.style.fontSize = "12px";
+				inputLimit.style.border = "1px solid #ddd";
+				inputLimit.style.borderRadius = "4px";
+
+				inputLimit.onchange = e => {
+					k.limit = parseFloat(e.target.value) || 0;
+					zapiszUstawienia();
+					alert(`Zapisano limit dla ${k.nazwa}: ${k.limit} zł`);
+				};
+
+				divAkcje.appendChild(inputLimit);
+				divAkcje.innerHTML += `<span style="font-size:12px; color:#888;">zł</span>`;
+
+				// Usuń
+				const btnUsun = document.createElement("button");
+				btnUsun.innerText = "Usuń";
+				btnUsun.style.marginLeft = "5px";
+				btnUsun.style.fontSize = "12px";
+				btnUsun.onclick = () => usunKategorie(t, k.nazwa);
+
+				divAkcje.appendChild(btnUsun);
+
+				li.appendChild(span);
+				li.appendChild(divAkcje);
+				el.appendChild(li);
 			});
 	};
+
 	gen("wydatek", listaKategoriiWydatki);
 	gen("przychod", listaKategoriiPrzychody);
 }
 
-function pobierzTransakcje() {
-	let dane = [...transakcje]; // Kopia bazy
+// --- Dodawanie nowej kategorii ---
+btnDodajKategorie.addEventListener("click", () => {
+	const nazwa = inputNowaKategoria.value.trim().toLowerCase();
+	const typ = selectNowaKategoriaTyp.value;
+	const limitVal =
+		parseFloat(document.getElementById("nowa-kategoria-limit").value) || 0;
 
-	// A. Filtrowanie Daty (Twoja stara logika)
+	if (nazwa) {
+		const istnieje = ustawienia.kategorie[typ].some(k => k.nazwa === nazwa);
+		if (!istnieje) {
+			ustawienia.kategorie[typ].push({ nazwa: nazwa, limit: limitVal });
+			zapiszUstawienia();
+			renderujListyKategoriiWUstawieniach();
+			aktualizujSelectKategorii();
+			inputNowaKategoria.value = "";
+			document.getElementById("nowa-kategoria-limit").value = "";
+		} else {
+			alert("Taka kategoria już istnieje!");
+		}
+	}
+});
+
+window.usunKategorie = function (typ, nazwaDoUsuniecia) {
+	if (confirm(`Czy na pewno usunąć kategorię "${nazwaDoUsuniecia}"?`)) {
+		ustawienia.kategorie[typ] = ustawienia.kategorie[typ].filter(
+			k => k.nazwa !== nazwaDoUsuniecia
+		);
+		zapiszUstawienia();
+		renderujListyKategoriiWUstawieniach();
+		aktualizujSelectKategorii();
+	}
+};
+
+function pobierzTransakcje() {
+	let dane = [...transakcje];
+
+	// A. Filtrowanie Daty
 	if (checkboxRok.checked) {
 		dane = dane.filter(t => t.data.startsWith(selectFiltrRok.value));
 	} else {
 		dane = dane.filter(t => t.data.startsWith(inputFiltrData.value));
 	}
 
-	// B. Filtrowanie Typu (NOWE)
+	// B. Filtrowanie Typu
 	const wybranyTyp = selectFiltrTyp.value;
 	if (wybranyTyp !== "wszystkie") {
 		dane = dane.filter(t => t.typ === wybranyTyp);
 	}
 
-	// C. Wyszukiwarka (NOWE)
+	// C. Wyszukiwarka
 	const fraza = inputSzukaj.value.toLowerCase().trim();
 	if (fraza) {
 		dane = dane.filter(
@@ -459,7 +553,7 @@ function pobierzTransakcje() {
 		);
 	}
 
-	// D. Sortowanie (NOWE)
+	// D. Sortowanie
 	const sortTyp = selectSortuj.value;
 	dane.sort((a, b) => {
 		if (sortTyp === "data-nowe") return new Date(b.data) - new Date(a.data);
@@ -535,25 +629,92 @@ function aktualizujWidok() {
 		sumaPrzychodowHTML.innerText = formatujKwote(sumaPrzych);
 	if (sumaWydatkowHTML) sumaWydatkowHTML.innerText = formatujKwote(sumaWyd);
 
-	// RYSOWANIE WSZYSTKICH WYKRESÓW
+	// Rysowanie wykresów
 	rysujWykresKolowy(widoczne);
 	rysujWykresLiniowy(widoczne);
 	rysujWykresSlupkowy(widoczne);
 	rysujRanking(widoczne);
+
+	// NOWOŚĆ: Rysowanie pasków budżetu na pulpicie
+	rysujLimityNaPulpicie();
 }
 
-// --- 1. KOŁOWY Z TEKSTEM W ŚRODKU (POPRAWIONY ŚRODEK) ---
+// --- NOWA FUNKCJA: Rysowanie pasków budżetu ---
+function rysujLimityNaPulpicie() {
+	const kontener = document.getElementById("kontener-limitow-mini");
+	const lista = document.getElementById("lista-paskow-pulpit");
+
+	// Sprawdzenie czy elementy istnieją (zabezpieczenie)
+	if (!kontener || !lista) return;
+
+	// 1. Sprawdzamy ustawienia
+	if (
+		!ustawienia.konfiguracjaPulpitu ||
+		!ustawienia.konfiguracjaPulpitu.pokazLimity
+	) {
+		kontener.classList.add("ukryty");
+		return;
+	}
+
+	// 2. Pobieramy kategorie wydatków z limitem > 0
+	const kategorieZLimitem = ustawienia.kategorie.wydatek.filter(
+		k => k.limit > 0
+	);
+
+	if (kategorieZLimitem.length === 0) {
+		kontener.classList.add("ukryty");
+		return;
+	}
+
+	kontener.classList.remove("ukryty");
+	lista.innerHTML = "";
+
+	// Pobieramy filtr daty (ten sam co dla listy transakcji)
+	const dataFiltr = inputFiltrData.value; // np. "2023-12"
+
+	kategorieZLimitem.forEach(kat => {
+		// Sumujemy wydatki dla tej kategorii w tym miesiącu
+		const wydano = transakcje
+			.filter(t => {
+				const pasujeKategoria = t.kategoria === kat.nazwa;
+				const pasujeTyp = t.typ === "wydatek";
+				const pasujeData = t.data.startsWith(dataFiltr);
+				return pasujeKategoria && pasujeTyp && pasujeData;
+			})
+			.reduce((suma, t) => suma + t.kwota, 0);
+
+		const procent = Math.min((wydano / kat.limit) * 100, 100);
+		const czyAlarm = wydano > kat.limit;
+		const kolorKlasa = czyAlarm ? "alarm" : "";
+
+		const html = `
+            <div class="budzet-item">
+                <div class="budzet-info">
+                    <strong>${
+											kat.nazwa.charAt(0).toUpperCase() + kat.nazwa.slice(1)
+										}</strong>
+                    <span>${formatujKwote(wydano)} / ${formatujKwote(
+			kat.limit
+		)}</span>
+                </div>
+                <div class="pusty-pasek">
+                    <div class="zapelnienie-paska ${kolorKlasa}" style="width: ${procent}%"></div>
+                </div>
+            </div>
+        `;
+		lista.innerHTML += html;
+	});
+}
+
+// --- WYKRESY (Funkcje pomocnicze) ---
 function rysujWykresKolowy(dane) {
 	if (!dane) dane = pobierzTransakcje();
 	const filtrowane = dane.filter(t => t.typ === aktualnyTypWykresu);
 	if (wykresKolowy) wykresKolowy.destroy();
-
-	// Zabezpieczenie przed brakiem danych
 	if (filtrowane.length === 0 && window.innerWidth > 768) return;
 
 	const sumy = {};
 	let total = 0;
-
 	filtrowane.forEach(t => {
 		sumy[t.kategoria] = (sumy[t.kategoria] || 0) + t.kwota;
 		total += t.kwota;
@@ -567,20 +728,14 @@ function rysujWykresKolowy(dane) {
 		beforeDraw: function (chart) {
 			const width = chart.width;
 			const ctx = chart.ctx;
-
-			// Środek obszaru rysowania (bez legendy)
 			const textY = (chart.chartArea.top + chart.chartArea.bottom) / 2;
-
 			ctx.restore();
-			// Trochę mniejsza czcionka, żeby się ładnie mieściła
 			const fontSize = (chart.height / 160).toFixed(2);
 			ctx.font = "bold " + fontSize + "em sans-serif";
 			ctx.textBaseline = "middle";
 			ctx.fillStyle = "#333";
-
 			const text = formattedTotal;
 			const textX = Math.round((width - ctx.measureText(text).width) / 2);
-
 			ctx.fillText(text, textX, textY);
 			ctx.save();
 		},
@@ -622,7 +777,6 @@ function rysujWykresKolowy(dane) {
 	});
 }
 
-// --- 2. LINIOWY (TREND) ---
 function rysujWykresLiniowy(dane) {
 	if (!dane) dane = pobierzTransakcje();
 	if (wykresLiniowy) wykresLiniowy.destroy();
@@ -669,14 +823,12 @@ function rysujWykresLiniowy(dane) {
 	});
 }
 
-// --- 3. SŁUPKOWY (HYBRYDOWY: ROK VS MIESIĄC) ---
 function rysujWykresSlupkowy(dane) {
 	if (!dane) dane = pobierzTransakcje();
 	if (wykresSlupkowy) wykresSlupkowy.destroy();
 	if (dane.length === 0 && window.innerWidth > 768) return;
 
 	if (checkboxRok.checked) {
-		// --- OPCJA 1: WIDOK ROCZNY ---
 		const nazwyMcy = [
 			"Sty",
 			"Lut",
@@ -695,7 +847,7 @@ function rysujWykresSlupkowy(dane) {
 		const wydatkiMcy = new Array(12).fill(0);
 
 		dane.forEach(t => {
-			const mcIndex = parseInt(t.data.split("-")[1]) - 1; // 0-11
+			const mcIndex = parseInt(t.data.split("-")[1]) - 1;
 			if (t.typ === "przychod") przychodyMcy[mcIndex] += t.kwota;
 			else wydatkiMcy[mcIndex] += t.kwota;
 		});
@@ -716,22 +868,16 @@ function rysujWykresSlupkowy(dane) {
 			options: {
 				responsive: true,
 				maintainAspectRatio: false,
-				scales: {
-					x: { grid: { display: false } },
-					y: { beginAtZero: true },
-				},
+				scales: { x: { grid: { display: false } }, y: { beginAtZero: true } },
 			},
 		});
 	} else {
-		// --- OPCJA 2: WIDOK MIESIĘCZNY ---
 		let sumaP = 0;
 		let sumaW = 0;
-
 		dane.forEach(t => {
 			if (t.typ === "przychod") sumaP += t.kwota;
 			else sumaW += t.kwota;
 		});
-
 		wykresSlupkowy = new Chart(ctxBar, {
 			type: "bar",
 			data: {
@@ -755,14 +901,10 @@ function rysujWykresSlupkowy(dane) {
 	}
 }
 
-// --- 4. POZIOMY RANKING (TOP KATEGORIE - ZAKTUALIZOWANY) ---
 function rysujRanking(dane) {
 	if (!dane) dane = pobierzTransakcje();
 	if (wykresRanking) wykresRanking.destroy();
-
-	// Filtrujemy teraz wg aktualnie wybranego przycisku (Wydatki lub Przychody)
 	const przefiltrowane = dane.filter(t => t.typ === aktualnyTypRankingu);
-
 	if (przefiltrowane.length === 0 && window.innerWidth > 768) return;
 
 	const sumy = {};
@@ -772,9 +914,7 @@ function rysujRanking(dane) {
 
 	const sorted = Object.entries(sumy)
 		.sort((a, b) => b[1] - a[1])
-		.slice(0, 5); // TOP 5
-
-	// Kolor słupków zależny od typu: Pomarańczowy dla wydatków, Zielony dla przychodów
+		.slice(0, 5);
 	const kolorSlupka = aktualnyTypRankingu === "wydatek" ? "#FF9F40" : "#48bb78";
 	const etykieta = aktualnyTypRankingu === "wydatek" ? "Wydatki" : "Przychody";
 
@@ -800,6 +940,3 @@ function rysujRanking(dane) {
 		},
 	});
 }
-
-// START
-startAplikacji();

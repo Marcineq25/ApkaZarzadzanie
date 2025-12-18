@@ -125,24 +125,7 @@ textarea {
 	white-space: nowrap;
 }
 
-.filtry {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
-
-.filtry-grupa {
-	flex: 1 1 350px; /* Grupa ma swoją minimalną szerokość */
-	display: flex;
-	gap: 10px;
-	order: 2;
-}
-
-.filtry-grupa select {
-	flex: 1; /* Selektory wewnątrz grupy zawsze dzielą się po połowie */
-	min-width: 0; /* Pozwala im się zwężać płynnie */
-}
-
+/* Style kontenera filtrów */
 #kontener-filtrow {
 	display: flex;
 	flex-wrap: wrap;
@@ -155,14 +138,23 @@ textarea {
 	align-items: center;
 }
 
+/* Wyszukiwarka - domyślnie po lewej/górze */
 #szukaj-transakcji {
-	flex: 1 1 300px; /* Może rosnąć, ale dąży do 300px min. */
+	flex: 2 1 300px;
 	order: 1;
 }
 
-#filtr-typ,
-#sortuj-wedlug {
-	flex: 1 1 150px; /* Oba selektory mają te same zasady */
+/* Grupa selektorów - trzyma Typ i Sortowanie razem */
+.filtry-grupa {
+	flex: 1 1 350px;
+	display: flex;
+	gap: 10px;
+	order: 2;
+}
+
+.filtry-grupa select {
+	flex: 1; /* Selektory wewnątrz grupy zawsze dzielą się po połowie */
+	min-width: 0;
 }
 
 /* Efekt najechania dla interaktywności */
@@ -386,7 +378,6 @@ li.minus .kwota span {
 	height: 100%;
 }
 
-/* 2. Siatka wykresów */
 .grid-analiza {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
@@ -396,7 +387,6 @@ li.minus .kwota span {
 	width: 100%;
 }
 
-/* 3. Karty wykresów */
 .grid-analiza .karta {
 	display: flex;
 	flex-direction: column;
@@ -406,7 +396,6 @@ li.minus .kwota span {
 	padding: 15px;
 }
 
-/* 4. Tytuł wykresu */
 .grid-analiza .karta h3,
 .grid-analiza .naglowek-wykresu {
 	flex-shrink: 0;
@@ -447,17 +436,17 @@ li.minus .kwota span {
 }
 
 /* =========================================
-   7. WIDOK: USTAWIENIA - WERSJA POPRAWIONA
+   7. WIDOK: USTAWIENIA
    ========================================= */
 .ustawienia-container {
 	max-width: 800px;
 	width: 100%;
 }
 
-/* Naprawa rzędu dodawania kategorii */
+/* Dodawanie kategorii */
 .dodaj-kategorie-wrapper {
 	display: flex;
-	flex-wrap: wrap; /* Pozwala elementom przejść do nowej linii na bardzo małych ekranach */
+	flex-wrap: wrap;
 	gap: 10px;
 	align-items: center;
 	margin-bottom: 20px;
@@ -466,32 +455,29 @@ li.minus .kwota span {
 	width: 100%;
 }
 
-/* Pole tekstowe zajmuje teraz główną przestrzeń */
 #nowa-kategoria-input {
 	flex: 3;
-	min-width: 150px; /* Gwarantuje, że pole nie zniknie */
+	min-width: 150px;
 	padding: 10px;
 	border: 1px solid #ddd;
 	border-radius: 6px;
 }
 
-/* Selektor typu (Wydatek/Przychód) */
 #nowa-kategoria-typ {
 	flex: 1.5;
 	min-width: 120px;
 	padding: 10px;
 }
 
-/* Naprawa przycisku Dodaj - nie może mieć 100% szerokości w tym rzędzie */
 #btn-dodaj-kategorie {
 	flex: 1;
 	min-width: 80px;
-	width: auto !important; /* Nadpisujemy globalne width: 100% dla buttonów */
+	width: auto !important;
 	padding: 10px 20px;
-	white-space: nowrap; /* Napis "Dodaj" zawsze w jednej linii */
+	white-space: nowrap;
 }
 
-/* Kolumny kategorii - zawijanie pod siebie na mobile */
+/* Kolumny kategorii */
 .kolumny-kategorii {
 	display: flex;
 	flex-wrap: wrap;
@@ -515,16 +501,19 @@ li.minus .kwota span {
 	padding-bottom: 5px;
 }
 
-/* Lista kategorii i przyciski usuwania */
-.lista-prosta li {
+/* Lista kategorii - elementy */
+.lista-ustawienia li {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 8px 0;
+	padding: 8px 12px;
+	background: #fcfcfc;
 	border-bottom: 1px solid #eee;
+	margin-bottom: 4px;
+	border-radius: 6px;
 }
 
-.lista-prosta li button {
+.lista-ustawienia li button {
 	background: #e74c3c;
 	color: white;
 	border: none;
@@ -532,7 +521,7 @@ li.minus .kwota span {
 	border-radius: 4px;
 	font-size: 11px;
 	cursor: pointer;
-	width: auto !important; /* Zapobiega rozciąganiu przycisku usuń na całą linię */
+	width: auto !important;
 }
 
 /* =========================================
@@ -571,7 +560,50 @@ li.minus .kwota span {
 }
 
 /* =========================================
-    8.5. TABLET / MAŁY LAPTOP (769px - 1200px)
+   10. STYLE PASKÓW BUDŻETOWYCH
+   ========================================= */
+#kontener-limitow-mini.ukryty {
+	display: none;
+}
+
+#lista-paskow-pulpit {
+	display: grid;
+	grid-template-columns: 1fr 1fr; /* Dwie kolumny na desktopie */
+	gap: 15px;
+}
+
+.budzet-item {
+	font-size: 13px;
+	color: #34495e;
+}
+
+.budzet-info {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 4px;
+}
+
+.pusty-pasek {
+	width: 100%;
+	height: 8px;
+	background-color: #ecf0f1;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.zapelnienie-paska {
+	height: 100%;
+	background-color: #2c3e50; /* Twój granatowy */
+	border-radius: 4px;
+	transition: width 0.5s ease-in-out;
+}
+
+.zapelnienie-paska.alarm {
+	background-color: #e74c3c;
+}
+
+/* =========================================
+   8.5. TABLET / MAŁY LAPTOP (769px - 1200px)
    ========================================= */
 @media (max-width: 1200px) {
 	.sidebar {
@@ -627,29 +659,23 @@ li.minus .kwota span {
 
 	/* POPRAWKA FILTRÓW DLA TABLETU */
 	#kontener-filtrow {
-		display: flex;
 		flex-wrap: wrap;
-		gap: 10px;
 	}
 
+	/* Tutaj ważna zmiana: sterujemy grupą, a nie pojedynczymi selectami */
 	#szukaj-transakcji {
 		flex: 1 1 100% !important; /* Pełna szerokość na górze */
 		order: 1;
 	}
 
-	#filtr-typ {
-		flex: 1;
+	.filtry-grupa {
+		flex: 1 1 100% !important; /* Grupa zajmuje drugi rząd */
 		order: 2;
-	}
-
-	#sortuj-wedlug {
-		flex: 1;
-		order: 3;
 	}
 }
 
 /* =========================================
-    9. MOBILE / RWD (Max width 768px)
+   9. MOBILE / RWD (Max width 768px)
    ========================================= */
 @media (max-width: 768px) {
 	body,
@@ -691,14 +717,9 @@ li.minus .kwota span {
 		order: 1;
 	}
 
-	#filtr-typ {
-		flex: 1;
+	.filtry-grupa {
+		flex: 1 1 100% !important; /* Grupa pod spodem */
 		order: 2;
-	}
-
-	#sortuj-wedlug {
-		flex: 1;
-		order: 3;
 	}
 
 	.sidebar {
@@ -771,7 +792,7 @@ li.minus .kwota span {
 	}
 
 	.karta-lista {
-		order: 5; /* Historia operacji pod filtrami */
+		order: 5;
 		max-height: 450px;
 		display: flex !important;
 		flex-direction: column;
@@ -796,6 +817,11 @@ li.minus .kwota span {
 
 	.ustawienia-container {
 		max-width: 100%;
+	}
+
+	/* Paski budżetu na mobile - jedna kolumna */
+	#lista-paskow-pulpit {
+		grid-template-columns: 1fr;
 	}
 }
 
