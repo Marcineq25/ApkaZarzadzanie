@@ -406,48 +406,61 @@ li.minus .kwota span {
 }
 
 /* =========================================
-   7. WIDOK: USTAWIENIA
+   7. WIDOK: USTAWIENIA - WERSJA POPRAWIONA
    ========================================= */
 .ustawienia-container {
 	max-width: 800px;
 	width: 100%;
 }
 
-/* POPRAWKA: Pole tekstowe teraz się rozciąga i jest widoczne */
+/* Naprawa rzędu dodawania kategorii */
 .dodaj-kategorie-wrapper {
 	display: flex;
+	flex-wrap: wrap; /* Pozwala elementom przejść do nowej linii na bardzo małych ekranach */
 	gap: 10px;
-	align-items: center; /* Wyrównanie w pionie */
+	align-items: center;
 	margin-bottom: 20px;
 	border-bottom: 1px solid #eee;
 	padding-bottom: 20px;
 	width: 100%;
 }
 
-.dodaj-kategorie-wrapper input {
-	flex: 2; /* Rozciąga pole tekstowe (naprawa zniknięcia) */
-	min-width: 0; /* Zapobiega wypychaniu kontenera */
+/* Pole tekstowe zajmuje teraz główną przestrzeń */
+#nowa-kategoria-input {
+	flex: 3;
+	min-width: 150px; /* Gwarantuje, że pole nie zniknie */
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 6px;
 }
 
-.dodaj-kategorie-wrapper select {
+/* Selektor typu (Wydatek/Przychód) */
+#nowa-kategoria-typ {
+	flex: 1.5;
+	min-width: 120px;
+	padding: 10px;
+}
+
+/* Naprawa przycisku Dodaj - nie może mieć 100% szerokości w tym rzędzie */
+#btn-dodaj-kategorie {
 	flex: 1;
-}
-
-.dodaj-kategorie-wrapper button {
-	width: auto; /* Przycisk nie musi zajmować całej szerokości w tym rzędzie */
+	min-width: 80px;
+	width: auto !important; /* Nadpisujemy globalne width: 100% dla buttonów */
 	padding: 10px 20px;
+	white-space: nowrap; /* Napis "Dodaj" zawsze w jednej linii */
 }
 
-/* POPRAWKA: Kolumny zawijają się na telefonie (nie wyjeżdżają poza ekran) */
+/* Kolumny kategorii - zawijanie pod siebie na mobile */
 .kolumny-kategorii {
 	display: flex;
-	flex-wrap: wrap; /* Pozwala na przeskok kolumny pod spód na mobile */
+	flex-wrap: wrap;
 	gap: 20px;
+	width: 100%;
 }
 
 .kolumna {
 	flex: 1;
-	min-width: 250px; /* Minimalna szerokość kolumny przed zawinięciem */
+	min-width: 250px;
 	background: #f9f9f9;
 	padding: 15px;
 	border-radius: 8px;
@@ -461,7 +474,7 @@ li.minus .kwota span {
 	padding-bottom: 5px;
 }
 
-/* Lista w ustawieniach - przyciski usuwania */
+/* Lista kategorii i przyciski usuwania */
 .lista-prosta li {
 	display: flex;
 	justify-content: space-between;
@@ -478,7 +491,7 @@ li.minus .kwota span {
 	border-radius: 4px;
 	font-size: 11px;
 	cursor: pointer;
-	width: auto; /* Naprawa szerokości przycisku usuń */
+	width: auto !important; /* Zapobiega rozciąganiu przycisku usuń na całą linię */
 }
 
 /* =========================================
