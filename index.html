@@ -111,14 +111,6 @@
                         <div class="karta bilans-karta">
                             <h2 id="tytul-salda">Saldo w tym miesiącu:</h2>
                             <div id="stan-konta" class="wielka-liczba">0.00 zł</div>
-                            <div id="kontener-limitow-mini" class="ukryty">
-                                <div style="border-top: 1px solid #eee; margin: 15px 0 10px 0;"></div>
-                                <h4
-                                    style="font-size: 13px; color: #7f8c8d; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    Realizacja Budżetu</h4>
-                                <div id="lista-paskow-pulpit">
-                                </div>
-                            </div>
                         </div>
 
                         <div class="filtry" id="kontener-filtrow">
@@ -209,28 +201,11 @@
                     </div>
 
                     <div class="karta">
-                        <h3>Konfiguracja Pulpitu</h3>
-                        <div class="opcja-konfiguracji" style="margin-bottom: 10px;">
-                            <label style="display: flex; align-items: center; cursor: pointer;">
-                                <input type="checkbox" id="check-pokaz-limity" style="width: auto; margin-right: 10px;">
-                                <span>Pokaż limity budżetowe (Wydatki)</span>
-                            </label>
-                        </div>
-                        <div class="opcja-konfiguracji">
-                            <label style="display: flex; align-items: center; cursor: pointer;">
-                                <input type="checkbox" id="check-pokaz-cele" style="width: auto; margin-right: 10px;">
-                                <span>Pokaż cele zarobkowe (Przychody)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="karta">
                         <h3>Zarządzanie Kategoriami</h3>
 
                         <div class="dodaj-kategorie-wrapper">
-                            <input type="text" id="nowa-kategoria-input" placeholder="Nazwa..." style="flex: 2;">
-                            <input type="number" id="nowa-kategoria-limit" placeholder="Limit (zł)"
-                                style="flex: 1; min-width: 80px;" min="0" step="10">
+                            <input type="text" id="nowa-kategoria-input" placeholder="Nazwa nowej kategorii..."
+                                style="flex: 2;">
                             <select id="nowa-kategoria-typ" style="flex: 1;">
                                 <option value="wydatek">Wydatek</option>
                                 <option value="przychod">Przychód</option>

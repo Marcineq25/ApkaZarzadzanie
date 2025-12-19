@@ -2,18 +2,18 @@
    1. RESET I STYLE BAZOWE
    ========================================= */
 * {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body,
 html {
-	height: 100%;
-	margin: 0;
-	padding: 0;
-	font-family: "Segoe UI", sans-serif;
-	background-color: #f0f2f5;
-	color: #333;
-	overflow: hidden; /* Na desktopie blokujemy scroll całej strony */
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    overflow: hidden; /* Na desktopie blokujemy scroll całej strony */
 }
 
 /* Wymuszenie czcionki w formularzach */
@@ -21,811 +21,763 @@ input,
 select,
 button,
 textarea {
-	font-family: inherit;
+    font-family: inherit;
 }
 
 /* =========================================
    2. GŁÓWNY UKŁAD (LAYOUT)
    ========================================= */
 .app-layout {
-	display: flex;
-	height: 100vh;
-	width: 100%;
+    display: flex;
+    height: 100vh;
+    width: 100%;
 }
 
 /* --- PASEK BOCZNY (SIDEBAR) --- */
 .sidebar {
-	width: 250px;
-	background-color: #2c3e50;
-	color: white;
-	display: flex;
-	flex-direction: column;
-	padding: 20px;
-	flex-shrink: 0;
-	transition: transform 0.3s ease-in-out;
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    flex-shrink: 0;
+    transition: transform 0.3s ease-in-out;
 }
 
 .logo {
-	font-size: 24px;
-	font-weight: bold;
-	margin-bottom: 40px;
-	color: #ecf0f1;
-	text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 40px;
+    color: #ecf0f1;
+    text-align: center;
 }
 
 .menu {
-	list-style: none;
-	padding: 0;
+    list-style: none;
+    padding: 0;
 }
 
 .menu li {
-	padding: 15px;
-	margin-bottom: 10px;
-	cursor: pointer;
-	border-radius: 8px;
-	transition: background 0.2s;
-	font-size: 16px;
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	color: #bdc3c7;
+    padding: 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #bdc3c7;
 }
 
 .menu li:hover,
 .menu li.aktywna {
-	background-color: #34495e;
-	color: white;
+    background-color: #34495e;
+    color: white;
 }
 
 .menu li.aktywna {
-	background-color: #4a90e2;
-	font-weight: bold;
+    background-color: #4a90e2;
+    font-weight: bold;
 }
 
 /* --- OBSZAR TREŚCI (MAIN) --- */
 .main-content {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden;
-	position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
 }
 
 /* Kontenery widoków */
 .widok {
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	padding: 0 30px 20px 30px; /* Marginesy wewnątrz widoku */
-	overflow-y: hidden; /* Blokada scrolla na desktopie */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0 30px 20px 30px; /* Marginesy wewnątrz widoku */
+    overflow-y: hidden; /* Blokada scrolla na desktopie */
 }
 
 .ukryty {
-	display: none !important;
+    display: none !important;
 }
 
 /* =========================================
    3. NAGŁÓWEK I FILTRY
    ========================================= */
 .top-bar {
-	flex-shrink: 0;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 15px;
-	padding: 20px 30px 10px 30px;
-	background: #f0f2f5;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 20px 30px 10px 30px;
+    background: #f0f2f5;
 }
 
 .top-bar h1 {
-	margin: 0;
-	font-size: 24px;
-	color: #1a1a1a;
-	white-space: nowrap;
+    margin: 0;
+    font-size: 24px;
+    color: #1a1a1a;
+    white-space: nowrap;
 }
 
 /* Style kontenera filtrów */
 #kontener-filtrow {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12px;
-	background: white;
-	padding: 15px;
-	border-radius: 12px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-	margin-bottom: 20px;
-	align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    align-items: center;
 }
 
 /* Wyszukiwarka - domyślnie po lewej/górze */
 #szukaj-transakcji {
-	flex: 2 1 300px;
-	order: 1;
+    flex: 2 1 300px;
+    order: 1;
 }
 
 /* Grupa selektorów - trzyma Typ i Sortowanie razem */
 .filtry-grupa {
-	flex: 1 1 350px;
-	display: flex;
-	gap: 10px;
-	order: 2;
+    flex: 1 1 350px;
+    display: flex;
+    gap: 10px;
+    order: 2;
 }
 
 .filtry-grupa select {
-	flex: 1; /* Selektory wewnątrz grupy zawsze dzielą się po połowie */
-	min-width: 0;
+    flex: 1; /* Selektory wewnątrz grupy zawsze dzielą się po połowie */
+    min-width: 0;
 }
 
 /* Efekt najechania dla interaktywności */
 #kontener-filtrow select:hover,
 #kontener-filtrow input:focus {
-	border-color: #4a90e2;
-	outline: none;
+    border-color: #4a90e2;
+    outline: none;
 }
 
 /* =========================================
    4. KARTY I ELEMENTY UI
    ========================================= */
 .karta {
-	background: white;
-	padding: 15px;
-	border-radius: 12px;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-	margin-bottom: 15px;
-	min-width: 0;
-	width: 100%;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 15px;
+    min-width: 0;
+    width: 100%;
 }
 
 .karta h3 {
-	margin-top: 0;
-	border-bottom: 1px solid #eee;
-	padding-bottom: 10px;
-	margin-bottom: 10px;
-	color: #555;
-	font-size: 16px;
+    margin-top: 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    color: #555;
+    font-size: 16px;
 }
 
 /* Formularze */
 .form-row {
-	display: flex;
-	gap: 10px;
-	margin-bottom: 10px;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 .input-group {
-	width: 100%;
-	margin-bottom: 10px;
+    width: 100%;
+    margin-bottom: 10px;
 }
 .input-group label {
-	display: block;
-	margin-bottom: 2px;
-	font-size: 11px;
-	font-weight: bold;
-	color: #666;
-	text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #666;
+    text-transform: uppercase;
 }
 
 input,
 select {
-	padding: 8px;
-	border: 1px solid #ddd;
-	border-radius: 6px;
-	width: 100%;
-	font-size: 13px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 13px;
 }
 
 button[type="submit"],
 #btn-dodaj-kategorie,
 #btn-eksport,
 #btn-import-trigger {
-	width: 100%;
-	padding: 10px;
-	background-color: #4a90e2;
-	color: white;
-	border: none;
-	border-radius: 6px;
-	font-weight: bold;
-	cursor: pointer;
+    width: 100%;
+    padding: 10px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
 }
 button:hover {
-	opacity: 0.9;
+    opacity: 0.9;
 }
 
 /* Przyciski Akcji (Edycja/Usuń) */
 .akcje-btn {
-	display: flex;
-	gap: 5px;
-	margin-left: 10px;
+    display: flex;
+    gap: 5px;
+    margin-left: 10px;
 }
 .btn-edytuj,
 .btn-usun {
-	width: 28px;
-	height: 28px;
-	border-radius: 4px;
-	border: none;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 14px;
-	opacity: 0.7;
-	transition: all 0.2s;
-	color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    opacity: 0.7;
+    transition: all 0.2s;
+    color: white;
 }
 .btn-edytuj {
-	background-color: #f1c40f;
+    background-color: #f1c40f;
 }
 .btn-usun {
-	background-color: #e74c3c;
+    background-color: #e74c3c;
 }
 li:hover .btn-edytuj,
 li:hover .btn-usun {
-	opacity: 1;
+    opacity: 1;
 }
 
 /* =========================================
    5. WIDOK: PULPIT
    ========================================= */
 .grid-layout {
-	display: grid;
-	grid-template-columns: 350px 1fr;
-	gap: 25px;
-	flex: 1;
-	min-height: 0;
-	height: 100%;
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 25px;
+    flex: 1;
+    min-height: 0;
+    height: 100%;
 }
 
 .panel-lewy,
 .panel-prawy {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 }
 
 /* Bilans */
 .bilans-karta {
-	background: linear-gradient(135deg, #4a90e2, #63b3ed);
-	color: white;
-	text-align: center;
+    background: linear-gradient(135deg, #4a90e2, #63b3ed);
+    color: white;
+    text-align: center;
 }
 .wielka-liczba {
-	font-size: 36px;
-	font-weight: bold;
+    font-size: 36px;
+    font-weight: bold;
 }
 .bilans-karta h2 {
-	color: rgba(255, 255, 255, 0.9);
-	font-size: 16px;
-	margin: 0 0 5px 0;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 16px;
+    margin: 0 0 5px 0;
 }
 
 /* Lista Transakcji */
 .karta-lista {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	margin-bottom: 0;
-	overflow: hidden;
-	min-height: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+    overflow: hidden;
+    min-height: 0;
 }
 .scroll-wrapper {
-	flex: 1;
-	overflow-y: auto;
-	padding-right: 10px;
-	height: 100%;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+    height: 100%;
 }
 
 ul {
-	padding: 0;
-	margin: 0;
-	list-style: none;
+    padding: 0;
+    margin: 0;
+    list-style: none;
 }
 li {
-	padding: 12px 10px;
-	border-bottom: 1px solid #f0f0f0;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 li:hover {
-	background-color: #f9f9f9;
+    background-color: #f9f9f9;
 }
 li.plus {
-	border-left: 4px solid #48bb78;
+    border-left: 4px solid #48bb78;
 }
 li.minus {
-	border-left: 4px solid #f56565;
+    border-left: 4px solid #f56565;
 }
 .info .data {
-	font-size: 11px;
-	color: #999;
+    font-size: 11px;
+    color: #999;
 }
 .info .kategoria {
-	font-size: 11px;
-	color: #666;
-	background: #eee;
-	padding: 2px 6px;
-	border-radius: 4px;
-	margin-left: 5px;
+    font-size: 11px;
+    color: #666;
+    background: #eee;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 5px;
 }
 .info strong {
-	display: block;
-	font-size: 14px;
-	margin-top: 2px;
+    display: block;
+    font-size: 14px;
+    margin-top: 2px;
 }
 .kwota {
-	font-size: 15px;
-	font-weight: bold;
-	display: flex;
-	align-items: center;
+    font-size: 15px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
 }
 li.plus .kwota span {
-	color: #2f855a;
+    color: #2f855a;
 }
 li.minus .kwota span {
-	color: #c53030;
+    color: #c53030;
 }
 
 /* =========================================
    6. WIDOK: ANALIZA (WYKRESY)
    ========================================= */
 #widok-analiza {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	overflow: hidden !important;
-	padding-bottom: 20px;
-	height: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden !important;
+    padding-bottom: 20px;
+    height: 100%;
 }
 
 .grid-analiza {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	grid-template-rows: 1fr 1fr;
-	gap: 20px;
-	height: 100%;
-	width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 20px;
+    height: 100%;
+    width: 100%;
 }
 
 .grid-analiza .karta {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	margin-bottom: 0;
-	min-height: 0;
-	padding: 15px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin-bottom: 0;
+    min-height: 0;
+    padding: 15px;
 }
 
 .grid-analiza .karta h3,
 .grid-analiza .naglowek-wykresu {
-	flex-shrink: 0;
-	margin-bottom: 10px;
+    flex-shrink: 0;
+    margin-bottom: 10px;
 }
 
 .wrapper-wykresu {
-	flex: 1;
-	width: 100%;
-	min-height: 0;
-	position: relative;
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    position: relative;
 }
 
 /* Przełącznik wykresu */
 .naglowek-wykresu {
-	display: flex;
-	flex-direction: column;
-	gap: 5px;
-	margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 5px;
 }
 .przelacznik-wykresu {
-	display: flex;
-	gap: 5px;
+    display: flex;
+    gap: 5px;
 }
 .przelacznik-wykresu button {
-	flex: 1;
-	padding: 4px;
-	font-size: 11px;
-	background: #f0f0f0;
-	border: none;
-	cursor: pointer;
-	border-radius: 4px;
-	color: #333;
+    flex: 1;
+    padding: 4px;
+    font-size: 11px;
+    background: #f0f0f0;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+    color: #333;
 }
 .przelacznik-wykresu button.aktywny {
-	background: #333;
-	color: white;
+    background: #333;
+    color: white;
 }
 
 /* =========================================
    7. WIDOK: USTAWIENIA
    ========================================= */
 .ustawienia-container {
-	max-width: 800px;
-	width: 100%;
+    max-width: 800px;
+    width: 100%;
 }
 
 /* Dodawanie kategorii */
 .dodaj-kategorie-wrapper {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 10px;
-	align-items: center;
-	margin-bottom: 20px;
-	border-bottom: 1px solid #eee;
-	padding-bottom: 20px;
-	width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    width: 100%;
 }
 
 #nowa-kategoria-input {
-	flex: 3;
-	min-width: 150px;
-	padding: 10px;
-	border: 1px solid #ddd;
-	border-radius: 6px;
+    flex: 3;
+    min-width: 150px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
 }
 
 #nowa-kategoria-typ {
-	flex: 1.5;
-	min-width: 120px;
-	padding: 10px;
+    flex: 1.5;
+    min-width: 120px;
+    padding: 10px;
 }
 
 #btn-dodaj-kategorie {
-	flex: 1;
-	min-width: 80px;
-	width: auto !important;
-	padding: 10px 20px;
-	white-space: nowrap;
+    flex: 1;
+    min-width: 80px;
+    width: auto !important;
+    padding: 10px 20px;
+    white-space: nowrap;
 }
 
 /* Kolumny kategorii */
 .kolumny-kategorii {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 20px;
-	width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
 }
 
 .kolumna {
-	flex: 1;
-	min-width: 250px;
-	background: #f9f9f9;
-	padding: 15px;
-	border-radius: 8px;
+    flex: 1;
+    min-width: 250px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
 }
 
 .kolumna h4 {
-	margin-top: 0;
-	text-align: center;
-	color: #666;
-	border-bottom: 1px solid #ddd;
-	padding-bottom: 5px;
+    margin-top: 0;
+    text-align: center;
+    color: #666;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
 }
 
 /* Lista kategorii - elementy */
 .lista-ustawienia li {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 8px 12px;
-	background: #fcfcfc;
-	border-bottom: 1px solid #eee;
-	margin-bottom: 4px;
-	border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #fcfcfc;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 4px;
+    border-radius: 6px;
 }
 
 .lista-ustawienia li button {
-	background: #e74c3c;
-	color: white;
-	border: none;
-	padding: 5px 10px;
-	border-radius: 4px;
-	font-size: 11px;
-	cursor: pointer;
-	width: auto !important;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    width: auto !important;
 }
 
 /* =========================================
    8. MINI RAPORT (LEWY PANEL) 
    ========================================= */
 .mini-raport {
-	display: flex;
-	flex-direction: column;
-	gap: 15px;
-	padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px 0;
 }
 
 .raport-linia {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 10px;
-	border-radius: 8px;
-	font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
 }
 
 .raport-linia.przychod {
-	background-color: #f0fff4;
-	border-left: 4px solid #48bb78;
-	color: #2f855a;
+    background-color: #f0fff4;
+    border-left: 4px solid #48bb78;
+    color: #2f855a;
 }
 
 .raport-linia.wydatek {
-	background-color: #fff5f5;
-	border-left: 4px solid #f56565;
-	color: #c53030;
+    background-color: #fff5f5;
+    border-left: 4px solid #f56565;
+    color: #c53030;
 }
 
 .raport-linia strong {
-	font-size: 16px;
-}
-
-/* =========================================
-   10. STYLE PASKÓW BUDŻETOWYCH
-   ========================================= */
-#kontener-limitow-mini.ukryty {
-	display: none;
-}
-
-#lista-paskow-pulpit {
-	display: grid;
-	grid-template-columns: 1fr 1fr; /* Dwie kolumny na desktopie */
-	gap: 15px;
-}
-
-.budzet-item {
-	font-size: 13px;
-	color: #34495e;
-}
-
-.budzet-info {
-	display: flex;
-	justify-content: space-between;
-	margin-bottom: 4px;
-}
-
-.pusty-pasek {
-	width: 100%;
-	height: 8px;
-	background-color: #ecf0f1;
-	border-radius: 4px;
-	overflow: hidden;
-}
-
-.zapelnienie-paska {
-	height: 100%;
-	background-color: #2c3e50; /* Twój granatowy */
-	border-radius: 4px;
-	transition: width 0.5s ease-in-out;
-}
-
-.zapelnienie-paska.alarm {
-	background-color: #e74c3c;
+    font-size: 16px;
 }
 
 /* =========================================
    8.5. TABLET / MAŁY LAPTOP (769px - 1200px)
    ========================================= */
 @media (max-width: 1200px) {
-	.sidebar {
-		position: fixed;
-		top: 0;
-		left: 0;
-		height: 100vh;
-		z-index: 2000;
-		transform: translateX(-100%);
-		box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
-	}
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 2000;
+        transform: translateX(-100%);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    }
 
-	.sidebar.aktywny {
-		transform: translateX(0) !important;
-	}
+    .sidebar.aktywny {
+        transform: translateX(0) !important;
+    }
 
-	#mobile-menu-btn {
-		display: block !important;
-		position: fixed;
-		top: 15px;
-		left: 15px;
-		z-index: 1500;
-		background: #2c3e50;
-		color: white;
-		border: none;
-		font-size: 24px;
-		padding: 5px 12px;
-		border-radius: 4px;
-		cursor: pointer;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-	}
+    #mobile-menu-btn {
+        display: block !important;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1500;
+        background: #2c3e50;
+        color: white;
+        border: none;
+        font-size: 24px;
+        padding: 5px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
-	#overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 0, 0, 0.5);
-		z-index: 1400;
-	}
-	#overlay.ukryty {
-		display: none;
-	}
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1400;
+    }
+    #overlay.ukryty {
+        display: none;
+    }
 
-	.main-content {
-		padding-top: 60px;
-	}
+    .main-content {
+        padding-top: 60px;
+    }
 
-	.grid-layout {
-		grid-template-columns: 300px 1fr;
-	}
+    .grid-layout {
+        grid-template-columns: 300px 1fr;
+    }
 
-	/* POPRAWKA FILTRÓW DLA TABLETU */
-	#kontener-filtrow {
-		flex-wrap: wrap;
-	}
+    /* POPRAWKA FILTRÓW DLA TABLETU */
+    #kontener-filtrow {
+        flex-wrap: wrap;
+    }
 
-	/* Tutaj ważna zmiana: sterujemy grupą, a nie pojedynczymi selectami */
-	#szukaj-transakcji {
-		flex: 1 1 100% !important; /* Pełna szerokość na górze */
-		order: 1;
-	}
+    /* Tutaj ważna zmiana: sterujemy grupą, a nie pojedynczymi selectami */
+    #szukaj-transakcji {
+        flex: 1 1 100% !important; /* Pełna szerokość na górze */
+        order: 1;
+    }
 
-	.filtry-grupa {
-		flex: 1 1 100% !important; /* Grupa zajmuje drugi rząd */
-		order: 2;
-	}
+    .filtry-grupa {
+        flex: 1 1 100% !important; /* Grupa zajmuje drugi rząd */
+        order: 2;
+    }
 }
 
 /* =========================================
    9. MOBILE / RWD (Max width 768px)
    ========================================= */
 @media (max-width: 768px) {
-	body,
-	html,
-	.app-layout,
-	.main-content {
-		height: auto !important;
-		overflow-y: auto !important;
-		overflow-x: hidden;
-	}
-	.widok {
-		height: auto !important;
-		overflow: visible !important;
-		padding: 0 15px 80px 15px;
-	}
+    body,
+    html,
+    .app-layout,
+    .main-content {
+        height: auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden;
+    }
+    .widok {
+        height: auto !important;
+        overflow: visible !important;
+        padding: 0 15px 80px 15px;
+    }
 
-	.top-bar {
-		padding: 10px 15px;
-		flex-direction: column;
-		align-items: flex-start;
-	}
-	.top-bar h1 {
-		font-size: 20px;
-		white-space: normal;
-	}
+    .top-bar {
+        padding: 10px 15px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .top-bar h1 {
+        font-size: 20px;
+        white-space: normal;
+    }
 
-	/* POPRAWKA FILTRÓW DLA MOBILE */
-	#kontener-filtrow {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 10px;
-		order: 4; /* Pozycjonowanie nad historią operacji */
-		margin-top: 0px;
-		margin-bottom: 20px;
-	}
+    /* POPRAWKA FILTRÓW DLA MOBILE */
+    #kontener-filtrow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        order: 4; /* Pozycjonowanie nad historią operacji */
+        margin-top: 0px;
+        margin-bottom: 20px;
+    }
 
-	#szukaj-transakcji {
-		flex: 1 1 100% !important; /* Pełna szerokość na górze */
-		order: 1;
-	}
+    #szukaj-transakcji {
+        flex: 1 1 100% !important; /* Pełna szerokość na górze */
+        order: 1;
+    }
 
-	.filtry-grupa {
-		flex: 1 1 100% !important; /* Grupa pod spodem */
-		order: 2;
-	}
+    .filtry-grupa {
+        flex: 1 1 100% !important; /* Grupa pod spodem */
+        order: 2;
+    }
 
-	.sidebar {
-		position: fixed;
-		top: 0;
-		left: 0;
-		height: 100vh;
-		width: 260px;
-		z-index: 2000 !important;
-		transform: translateX(-100%);
-		box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
-	}
-	.sidebar.aktywny {
-		transform: translateX(0) !important;
-	}
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 260px;
+        z-index: 2000 !important;
+        transform: translateX(-100%);
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    }
+    .sidebar.aktywny {
+        transform: translateX(0) !important;
+    }
 
-	#mobile-menu-btn {
-		display: block !important;
-		position: fixed;
-		top: 15px;
-		left: 15px;
-		z-index: 1500;
-		background: #2c3e50;
-		color: white;
-		border: none;
-		font-size: 24px;
-		padding: 5px 12px;
-		border-radius: 4px;
-		cursor: pointer;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-	}
-	#overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: rgba(0, 0, 0, 0.5);
-		z-index: 1400;
-	}
-	#overlay.ukryty {
-		display: none;
-	}
-	.main-content {
-		padding-top: 60px;
-	}
+    #mobile-menu-btn {
+        display: block !important;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1500;
+        background: #2c3e50;
+        color: white;
+        border: none;
+        font-size: 24px;
+        padding: 5px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1400;
+    }
+    #overlay.ukryty {
+        display: none;
+    }
+    .main-content {
+        padding-top: 60px;
+    }
 
-	.grid-layout {
-		display: flex;
-		flex-direction: column;
-	}
+    .grid-layout {
+        display: flex;
+        flex-direction: column;
+    }
 
-	.panel-prawy,
-	.panel-lewy {
-		display: contents;
-	}
+    .panel-prawy,
+    .panel-lewy {
+        display: contents;
+    }
 
-	.bilans-karta {
-		order: 1;
-	}
+    .bilans-karta {
+        order: 1;
+    }
 
-	.panel-lewy .karta:last-child {
-		order: 2;
-		margin-bottom: 15px;
-	}
+    .panel-lewy .karta:last-child {
+        order: 2;
+        margin-bottom: 15px;
+    }
 
-	.panel-lewy .karta:first-child {
-		order: 3;
-		margin-bottom: 20px;
-	}
+    .panel-lewy .karta:first-child {
+        order: 3;
+        margin-bottom: 20px;
+    }
 
-	.karta-lista {
-		order: 5;
-		max-height: 450px;
-		display: flex !important;
-		flex-direction: column;
-	}
+    .karta-lista {
+        order: 5;
+        max-height: 450px;
+        display: flex !important;
+        flex-direction: column;
+    }
 
-	.scroll-wrapper {
-		flex: 1;
-		max-height: 350px !important;
-		overflow-y: auto !important;
-		border-top: 1px solid #f0f0f0;
-	}
+    .scroll-wrapper {
+        flex: 1;
+        max-height: 350px !important;
+        overflow-y: auto !important;
+        border-top: 1px solid #f0f0f0;
+    }
 
-	.grid-analiza {
-		grid-template-columns: 1fr;
-	}
-	.grid-analiza .karta {
-		min-height: 300px;
-	}
-	.wrapper-wykresu {
-		min-height: 250px !important;
-	}
+    .grid-analiza {
+        grid-template-columns: 1fr;
+    }
+    .grid-analiza .karta {
+        min-height: 300px;
+    }
+    .wrapper-wykresu {
+        min-height: 250px !important;
+    }
 
-	.ustawienia-container {
-		max-width: 100%;
-	}
-
-	/* Paski budżetu na mobile - jedna kolumna */
-	#lista-paskow-pulpit {
-		grid-template-columns: 1fr;
-	}
+    .ustawienia-container {
+        max-width: 100%;
+    }
 }
 
 /* Ukrycie przycisku na desktopie */
 #mobile-menu-btn {
-	display: none;
+    display: none;
 }

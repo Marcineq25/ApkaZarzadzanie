@@ -5,6 +5,8 @@
 // UI Główne
 const tytulStrony = document.getElementById("tytul-strony");
 const kontenerFiltrow = document.getElementById("kontener-filtrow");
+// NOWOŚĆ: Uchwyt do paska daty w nagłówku
+const navOkres = document.querySelector(".okres-nawigacja");
 
 // Elementy Pulpitu
 const listaHTML = document.getElementById("lista");
@@ -77,7 +79,7 @@ const sidebar = document.querySelector(".sidebar");
 const overlay = document.getElementById("overlay");
 
 // ==========================================
-// 2. DANE
+// 2. DANE (Struktura obiektowa bez limitów)
 // ==========================================
 
 let transakcje = [];
@@ -95,31 +97,26 @@ let idEdytowanejTransakcji = null;
 const domyslneUstawienia = {
 	kategorie: {
 		wydatek: [
-			{ nazwa: "jedzenie", limit: 0 },
-			{ nazwa: "mieszkanie", limit: 0 },
-			{ nazwa: "transport", limit: 0 },
-			{ nazwa: "rozrywka", limit: 0 },
-			{ nazwa: "zdrowie", limit: 0 },
-			{ nazwa: "inne", limit: 0 },
+			{ nazwa: "jedzenie" },
+			{ nazwa: "mieszkanie" },
+			{ nazwa: "transport" },
+			{ nazwa: "rozrywka" },
+			{ nazwa: "zdrowie" },
+			{ nazwa: "inne" },
 		],
 		przychod: [
-			{ nazwa: "wynagrodzenie", limit: 0 },
-			{ nazwa: "sprzedaż", limit: 0 },
-			{ nazwa: "zwrot podatku", limit: 0 },
-			{ nazwa: "inne", limit: 0 },
+			{ nazwa: "wynagrodzenie" },
+			{ nazwa: "sprzedaż" },
+			{ nazwa: "zwrot podatku" },
+			{ nazwa: "inne" },
 		],
-	},
-	konfiguracjaPulpitu: {
-		pokazLimity: true,
-		pokazCelePrzychodow: false,
-		pokazMiniWykres: true,
 	},
 };
 
 let ustawienia = JSON.parse(JSON.stringify(domyslneUstawienia));
 
 // ==========================================
-// 3. START APLIKACJI (ZSCALONA FUNKCJA)
+// 3. START APLIKACJI
 // ==========================================
 
 function startAplikacji() {
@@ -130,7 +127,6 @@ function startAplikacji() {
 	const zapUst = localStorage.getItem("ustawienia");
 	if (zapUst) {
 		const wczytane = JSON.parse(zapUst);
-		// Zabezpieczenie: sprawdzamy czy struktura kategorii jest poprawna (tablica obiektów)
 		if (wczytane.kategorie && Array.isArray(wczytane.kategorie.wydatek)) {
 			ustawienia = wczytane;
 		}
@@ -155,43 +151,15 @@ function startAplikacji() {
 	inputFiltrData.value = dzis.toISOString().slice(0, 7);
 	selectFiltrRok.value = obecnyRok;
 
-	// C. Konfiguracja Pulpitu (Ptaszki) - PRZENIESIONE TUTAJ
-	const checkLimity = document.getElementById("check-pokaz-limity");
-	const checkCele = document.getElementById("check-pokaz-cele");
-
-	if (checkLimity && checkCele) {
-		// Ustawiamy stan wizualny
-		checkLimity.checked = ustawienia.konfiguracjaPulpitu
-			? ustawienia.konfiguracjaPulpitu.pokazLimity
-			: true;
-		checkCele.checked = ustawienia.konfiguracjaPulpitu
-			? ustawienia.konfiguracjaPulpitu.pokazCelePrzychodow
-			: false;
-
-		// Nasłuchujemy zmian
-		checkLimity.addEventListener("change", e => {
-			if (!ustawienia.konfiguracjaPulpitu) ustawienia.konfiguracjaPulpitu = {};
-			ustawienia.konfiguracjaPulpitu.pokazLimity = e.target.checked;
-			zapiszUstawienia();
-			aktualizujWidok(); // Odświeżamy widok, żeby paski zniknęły/pojawiły się od razu
-		});
-
-		checkCele.addEventListener("change", e => {
-			if (!ustawienia.konfiguracjaPulpitu) ustawienia.konfiguracjaPulpitu = {};
-			ustawienia.konfiguracjaPulpitu.pokazCelePrzychodow = e.target.checked;
-			zapiszUstawienia();
-		});
-	}
-
-	// D. Uruchomienie widoku
+	// C. Uruchomienie widoku
 	zmienWidok("pulpit");
 }
 
-// Inicjalizacja przy ładowaniu strony
+// Inicjalizacja
 startAplikacji();
 
 // ==========================================
-// 4. NAWIGACJA
+// 4. NAWIGACJA (TUTAJ ZASZŁA ZMIANA)
 // ==========================================
 
 function zmienWidok(nazwa) {
@@ -207,19 +175,31 @@ function zmienWidok(nazwa) {
 		widokPulpit.classList.remove("ukryty");
 		menuPulpit.classList.add("aktywna");
 		tytulStrony.innerText = "Pulpit finansowy";
+
+		// POKAZUJEMY filtry i datę
 		kontenerFiltrow.style.visibility = "visible";
+		if (navOkres) navOkres.style.visibility = "visible";
+
 		aktualizujWidok();
 	} else if (nazwa === "analiza") {
 		widokAnaliza.classList.remove("ukryty");
 		menuAnaliza.classList.add("aktywna");
 		tytulStrony.innerText = "Analiza i Wykresy";
+
+		// POKAZUJEMY filtry i datę
 		kontenerFiltrow.style.visibility = "visible";
+		if (navOkres) navOkres.style.visibility = "visible";
+
 		aktualizujWidok();
 	} else if (nazwa === "ustawienia") {
 		widokUstawienia.classList.remove("ukryty");
 		menuUstawienia.classList.add("aktywna");
 		tytulStrony.innerText = "Ustawienia";
+
+		// UKRYWAMY filtry i datę
 		kontenerFiltrow.style.visibility = "hidden";
+		if (navOkres) navOkres.style.visibility = "hidden";
+
 		renderujListyKategoriiWUstawieniach();
 	}
 
@@ -357,7 +337,7 @@ inputImport.addEventListener("change", e => {
 				ustawienia = d.ustawienia;
 				zapiszDane();
 				zapiszUstawienia();
-				startAplikacji(); // Przeładuje widok i ptaszki
+				startAplikacji();
 				alert("Gotowe!");
 			}
 		} catch (err) {
@@ -417,7 +397,6 @@ window.usunTransakcje = function (id) {
 // --- Wybór kategorii w formularzu ---
 function aktualizujSelectKategorii() {
 	const t = inputTyp.value;
-	// Sprawdzamy czy kategoria istnieje w obiekcie, sortujemy po nazwie
 	if (ustawienia.kategorie && ustawienia.kategorie[t]) {
 		const kat = ustawienia.kategorie[t].sort((a, b) =>
 			a.nazwa.localeCompare(b.nazwa)
@@ -433,7 +412,7 @@ function aktualizujSelectKategorii() {
 	}
 }
 
-// --- Wyświetlanie listy kategorii w ustawieniach (z edycją limitów) ---
+// --- Wyświetlanie listy kategorii w ustawieniach ---
 function renderujListyKategoriiWUstawieniach() {
 	const gen = (t, el) => {
 		el.innerHTML = "";
@@ -444,38 +423,13 @@ function renderujListyKategoriiWUstawieniach() {
 			.forEach(k => {
 				const li = document.createElement("li");
 
-				// Nazwa
 				const span = document.createElement("span");
 				span.innerText = k.nazwa.charAt(0).toUpperCase() + k.nazwa.slice(1);
 
-				// Akcje
 				const divAkcje = document.createElement("div");
 				divAkcje.style.display = "flex";
 				divAkcje.style.alignItems = "center";
-				divAkcje.style.gap = "5px";
 
-				// Input limitu
-				const inputLimit = document.createElement("input");
-				inputLimit.type = "number";
-				inputLimit.value = k.limit === 0 ? "" : k.limit;
-				inputLimit.placeholder = "0";
-				inputLimit.className = "input-limit-mini"; // opcjonalnie dodaj klasę CSS
-				inputLimit.style.width = "60px";
-				inputLimit.style.padding = "4px";
-				inputLimit.style.fontSize = "12px";
-				inputLimit.style.border = "1px solid #ddd";
-				inputLimit.style.borderRadius = "4px";
-
-				inputLimit.onchange = e => {
-					k.limit = parseFloat(e.target.value) || 0;
-					zapiszUstawienia();
-					alert(`Zapisano limit dla ${k.nazwa}: ${k.limit} zł`);
-				};
-
-				divAkcje.appendChild(inputLimit);
-				divAkcje.innerHTML += `<span style="font-size:12px; color:#888;">zł</span>`;
-
-				// Usuń
 				const btnUsun = document.createElement("button");
 				btnUsun.innerText = "Usuń";
 				btnUsun.style.marginLeft = "5px";
@@ -498,18 +452,15 @@ function renderujListyKategoriiWUstawieniach() {
 btnDodajKategorie.addEventListener("click", () => {
 	const nazwa = inputNowaKategoria.value.trim().toLowerCase();
 	const typ = selectNowaKategoriaTyp.value;
-	const limitVal =
-		parseFloat(document.getElementById("nowa-kategoria-limit").value) || 0;
 
 	if (nazwa) {
 		const istnieje = ustawienia.kategorie[typ].some(k => k.nazwa === nazwa);
 		if (!istnieje) {
-			ustawienia.kategorie[typ].push({ nazwa: nazwa, limit: limitVal });
+			ustawienia.kategorie[typ].push({ nazwa: nazwa });
 			zapiszUstawienia();
 			renderujListyKategoriiWUstawieniach();
 			aktualizujSelectKategorii();
 			inputNowaKategoria.value = "";
-			document.getElementById("nowa-kategoria-limit").value = "";
 		} else {
 			alert("Taka kategoria już istnieje!");
 		}
@@ -629,81 +580,10 @@ function aktualizujWidok() {
 		sumaPrzychodowHTML.innerText = formatujKwote(sumaPrzych);
 	if (sumaWydatkowHTML) sumaWydatkowHTML.innerText = formatujKwote(sumaWyd);
 
-	// Rysowanie wykresów
 	rysujWykresKolowy(widoczne);
 	rysujWykresLiniowy(widoczne);
 	rysujWykresSlupkowy(widoczne);
 	rysujRanking(widoczne);
-
-	// NOWOŚĆ: Rysowanie pasków budżetu na pulpicie
-	rysujLimityNaPulpicie();
-}
-
-// --- NOWA FUNKCJA: Rysowanie pasków budżetu ---
-function rysujLimityNaPulpicie() {
-	const kontener = document.getElementById("kontener-limitow-mini");
-	const lista = document.getElementById("lista-paskow-pulpit");
-
-	// Sprawdzenie czy elementy istnieją (zabezpieczenie)
-	if (!kontener || !lista) return;
-
-	// 1. Sprawdzamy ustawienia
-	if (
-		!ustawienia.konfiguracjaPulpitu ||
-		!ustawienia.konfiguracjaPulpitu.pokazLimity
-	) {
-		kontener.classList.add("ukryty");
-		return;
-	}
-
-	// 2. Pobieramy kategorie wydatków z limitem > 0
-	const kategorieZLimitem = ustawienia.kategorie.wydatek.filter(
-		k => k.limit > 0
-	);
-
-	if (kategorieZLimitem.length === 0) {
-		kontener.classList.add("ukryty");
-		return;
-	}
-
-	kontener.classList.remove("ukryty");
-	lista.innerHTML = "";
-
-	// Pobieramy filtr daty (ten sam co dla listy transakcji)
-	const dataFiltr = inputFiltrData.value; // np. "2023-12"
-
-	kategorieZLimitem.forEach(kat => {
-		// Sumujemy wydatki dla tej kategorii w tym miesiącu
-		const wydano = transakcje
-			.filter(t => {
-				const pasujeKategoria = t.kategoria === kat.nazwa;
-				const pasujeTyp = t.typ === "wydatek";
-				const pasujeData = t.data.startsWith(dataFiltr);
-				return pasujeKategoria && pasujeTyp && pasujeData;
-			})
-			.reduce((suma, t) => suma + t.kwota, 0);
-
-		const procent = Math.min((wydano / kat.limit) * 100, 100);
-		const czyAlarm = wydano > kat.limit;
-		const kolorKlasa = czyAlarm ? "alarm" : "";
-
-		const html = `
-            <div class="budzet-item">
-                <div class="budzet-info">
-                    <strong>${
-											kat.nazwa.charAt(0).toUpperCase() + kat.nazwa.slice(1)
-										}</strong>
-                    <span>${formatujKwote(wydano)} / ${formatujKwote(
-			kat.limit
-		)}</span>
-                </div>
-                <div class="pusty-pasek">
-                    <div class="zapelnienie-paska ${kolorKlasa}" style="width: ${procent}%"></div>
-                </div>
-            </div>
-        `;
-		lista.innerHTML += html;
-	});
 }
 
 // --- WYKRESY (Funkcje pomocnicze) ---
