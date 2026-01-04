@@ -5,10 +5,9 @@
 // UI Główne
 const tytulStrony = document.getElementById("tytul-strony");
 const kontenerFiltrow = document.getElementById("kontener-filtrow");
-// NOWOŚĆ: Uchwyt do paska daty w nagłówku
 const navOkres = document.querySelector(".okres-nawigacja");
 
-// Elementy Pulpitu
+// Elementy Pulpitu (Finanse)
 const listaHTML = document.getElementById("lista");
 const formularz = document.getElementById("formularz");
 const btnSubmit = document.getElementById("btn-submit");
@@ -19,14 +18,38 @@ const tytulSalda = document.getElementById("tytul-salda");
 const sumaPrzychodowHTML = document.getElementById("suma-przychodow");
 const sumaWydatkowHTML = document.getElementById("suma-wydatkow");
 
-// Pola formularza
+// Pola formularza (Finanse)
 const inputOpis = document.getElementById("tekst");
 const inputKwota = document.getElementById("kwota");
 const inputTyp = document.getElementById("typ");
 const inputData = document.getElementById("data");
 const inputKategoria = document.getElementById("kategoria");
 
-// Filtry
+// --- ZADANIA (NOWE ELEMENTY) ---
+const formZadania = document.getElementById("formularz-zadan");
+const inputZadanieTresc = document.getElementById("zadanie-tresc");
+const inputZadanieData = document.getElementById("zadanie-data"); // Data wykonania
+const selectZadanieTyp = document.getElementById("zadanie-typ");
+
+// Listy zadań
+const listaDzienne = document.getElementById("lista-zadan-dzienne");
+const listaTygodniowe = document.getElementById("lista-zadan-tygodniowe");
+const listaMiesieczne = document.getElementById("lista-zadan-miesieczne");
+const listaRoczne = document.getElementById("lista-zadan-roczne");
+
+// UI Zadań (Nawigacja i Postęp)
+const btnPrevDay = document.getElementById("btn-prev-day");
+const btnNextDay = document.getElementById("btn-next-day");
+const naglowekDataDzienne = document.getElementById("naglowek-data-dzienne");
+const progressText = document.getElementById("progress-text-dzienne");
+const progressFill = document.getElementById("progress-fill-dzienne");
+
+// Ustawienia Widoku Zadań (Checkboxy)
+const checkColTyg = document.getElementById("check-col-tygodniowe");
+const checkColMies = document.getElementById("check-col-miesieczne");
+const checkColRok = document.getElementById("check-col-roczne");
+
+// Filtry Finansowe
 const inputFiltrData = document.getElementById("filtr-data");
 const selectFiltrRok = document.getElementById("filtr-rok-select");
 const checkboxRok = document.getElementById("filtr-rok");
@@ -38,8 +61,6 @@ const selectSortuj = document.getElementById("sortuj-wedlug");
 const btnWydatki = document.getElementById("btn-pokaz-wydatki");
 const btnPrzychody = document.getElementById("btn-pokaz-przychody");
 const tytulWykresu = document.getElementById("tytul-wykresu");
-
-// Ranking (Analiza)
 const btnRankingWydatki = document.getElementById("btn-ranking-wydatki");
 const btnRankingPrzychody = document.getElementById("btn-ranking-przychody");
 const tytulRankingu = document.getElementById("tytul-rankingu");
@@ -50,7 +71,7 @@ const ctxLine = document.getElementById("wykresLiniowy");
 const ctxBar = document.getElementById("wykresSlupkowy");
 const ctxRanking = document.getElementById("wykresRanking");
 
-// Ustawienia
+// Ustawienia Kategorii
 const inputNowaKategoria = document.getElementById("nowa-kategoria-input");
 const selectNowaKategoriaTyp = document.getElementById("nowa-kategoria-typ");
 const btnDodajKategorie = document.getElementById("btn-dodaj-kategorie");
@@ -66,10 +87,12 @@ const inputImport = document.getElementById("input-import");
 
 // Nawigacja
 const menuPulpit = document.getElementById("menu-pulpit");
+const menuZadania = document.getElementById("menu-zadania");
 const menuAnaliza = document.getElementById("menu-analiza");
 const menuUstawienia = document.getElementById("menu-ustawienia");
 
 const widokPulpit = document.getElementById("widok-pulpit");
+const widokZadania = document.getElementById("widok-zadania");
 const widokAnaliza = document.getElementById("widok-analiza");
 const widokUstawienia = document.getElementById("widok-ustawienia");
 
@@ -79,18 +102,20 @@ const sidebar = document.querySelector(".sidebar");
 const overlay = document.getElementById("overlay");
 
 // ==========================================
-// 2. DANE (Struktura obiektowa bez limitów)
+// 2. DANE
 // ==========================================
 
 let transakcje = [];
+let zadania = [];
+// Stan nawigacji w module zadań (domyślnie dzisiaj)
+let aktualnyDzienWidoku = new Date();
+
 let aktualnyTypWykresu = "wydatek";
 let aktualnyTypRankingu = "wydatek";
-
-let wykresKolowy = null;
-let wykresLiniowy = null;
-let wykresSlupkowy = null;
-let wykresRanking = null;
-
+let wykresKolowy = null,
+	wykresLiniowy = null,
+	wykresSlupkowy = null,
+	wykresRanking = null;
 let trybEdycji = false;
 let idEdytowanejTransakcji = null;
 
@@ -111,6 +136,12 @@ const domyslneUstawienia = {
 			{ nazwa: "inne" },
 		],
 	},
+	// Konfiguracja widoczności kolumn zadań
+	widokZadan: {
+		pokazTygodniowe: true,
+		pokazMiesieczne: true,
+		pokazRoczne: true,
+	},
 };
 
 let ustawienia = JSON.parse(JSON.stringify(domyslneUstawienia));
@@ -120,19 +151,24 @@ let ustawienia = JSON.parse(JSON.stringify(domyslneUstawienia));
 // ==========================================
 
 function startAplikacji() {
-	// A. Wczytywanie danych
+	// A. Dane Finansowe
 	const zapTr = localStorage.getItem("transakcje");
 	if (zapTr) transakcje = JSON.parse(zapTr);
 
 	const zapUst = localStorage.getItem("ustawienia");
 	if (zapUst) {
 		const wczytane = JSON.parse(zapUst);
-		if (wczytane.kategorie && Array.isArray(wczytane.kategorie.wydatek)) {
-			ustawienia = wczytane;
-		}
+		if (wczytane.kategorie) ustawienia = wczytane;
+		// Migracja: jeśli stare ustawienia nie mają widokZadan, dodaj domyślne
+		if (!ustawienia.widokZadan)
+			ustawienia.widokZadan = domyslneUstawienia.widokZadan;
 	}
 
-	// B. Inicjalizacja filtrów daty
+	// B. Dane Zadań
+	const zapZadania = localStorage.getItem("zadania");
+	if (zapZadania) zadania = JSON.parse(zapZadania);
+
+	// C. Inicjalizacja UI
 	const obecnyRok = new Date().getFullYear();
 	selectFiltrRok.innerHTML = "";
 	for (let rok = 2020; rok <= obecnyRok + 1; rok++) {
@@ -151,54 +187,65 @@ function startAplikacji() {
 	inputFiltrData.value = dzis.toISOString().slice(0, 7);
 	selectFiltrRok.value = obecnyRok;
 
-	// C. Uruchomienie widoku
+	// Ustawienie domyślnej daty w formularzu zadań
+	if (inputZadanieData) inputZadanieData.valueAsDate = dzis;
+
+	// Uruchomienie nasłuchiwania ustawień (checkboxy kolumn)
+	inicjalizujUstawieniaWidoku();
+
 	zmienWidok("pulpit");
 }
 
-// Inicjalizacja
 startAplikacji();
 
 // ==========================================
-// 4. NAWIGACJA (TUTAJ ZASZŁA ZMIANA)
+// 4. NAWIGACJA
 // ==========================================
 
 function zmienWidok(nazwa) {
+	// 1. Ukrywamy wszystko
 	widokPulpit.classList.add("ukryty");
+	widokZadania.classList.add("ukryty");
 	widokAnaliza.classList.add("ukryty");
 	widokUstawienia.classList.add("ukryty");
 
 	menuPulpit.classList.remove("aktywna");
+	menuZadania.classList.remove("aktywna");
 	menuAnaliza.classList.remove("aktywna");
 	menuUstawienia.classList.remove("aktywna");
 
+	// Domyślnie ukrywamy pasek filtrów (pokażemy tylko tam gdzie trzeba)
+	kontenerFiltrow.style.visibility = "hidden";
+	if (navOkres) navOkres.style.visibility = "hidden";
+
+	// 2. Pokazujemy wybrany widok
 	if (nazwa === "pulpit") {
 		widokPulpit.classList.remove("ukryty");
 		menuPulpit.classList.add("aktywna");
 		tytulStrony.innerText = "Pulpit finansowy";
 
-		// POKAZUJEMY filtry i datę
 		kontenerFiltrow.style.visibility = "visible";
 		if (navOkres) navOkres.style.visibility = "visible";
-
 		aktualizujWidok();
+	} else if (nazwa === "zadania") {
+		widokZadania.classList.remove("ukryty");
+		menuZadania.classList.add("aktywna");
+		tytulStrony.innerText = "Cele i Zadania";
+
+		// Renderujemy zadania (odświeżamy widok dnia)
+		renderujZadania();
 	} else if (nazwa === "analiza") {
 		widokAnaliza.classList.remove("ukryty");
 		menuAnaliza.classList.add("aktywna");
 		tytulStrony.innerText = "Analiza i Wykresy";
 
-		// POKAZUJEMY filtry i datę
 		kontenerFiltrow.style.visibility = "visible";
 		if (navOkres) navOkres.style.visibility = "visible";
-
 		aktualizujWidok();
 	} else if (nazwa === "ustawienia") {
 		widokUstawienia.classList.remove("ukryty");
 		menuUstawienia.classList.add("aktywna");
 		tytulStrony.innerText = "Ustawienia";
-
-		// UKRYWAMY filtry i datę
-		kontenerFiltrow.style.visibility = "hidden";
-		if (navOkres) navOkres.style.visibility = "hidden";
 
 		renderujListyKategoriiWUstawieniach();
 	}
@@ -209,11 +256,218 @@ function zmienWidok(nazwa) {
 }
 
 menuPulpit.addEventListener("click", () => zmienWidok("pulpit"));
+menuZadania.addEventListener("click", () => zmienWidok("zadania"));
 menuAnaliza.addEventListener("click", () => zmienWidok("analiza"));
 menuUstawienia.addEventListener("click", () => zmienWidok("ustawienia"));
 
 // ==========================================
-// 5. OBSŁUGA ZDARZEŃ
+// 5. OBSŁUGA ZADAŃ (LOGIKA + DATA)
+// ==========================================
+
+// Helper: Formatowanie daty do stringa YYYY-MM-DD (ważne dla porównań)
+function formatDate(date) {
+	const offset = date.getTimezoneOffset();
+	const localDate = new Date(date.getTime() - offset * 60 * 1000);
+	return localDate.toISOString().split("T")[0];
+}
+
+// 1. Dodawanie nowego zadania
+if (formZadania) {
+	formZadania.addEventListener("submit", e => {
+		e.preventDefault();
+		const tresc = inputZadanieTresc.value.trim();
+		const typ = selectZadanieTyp.value;
+		const dataVal = inputZadanieData.value; // Pobieramy datę z inputa
+
+		if (tresc && dataVal) {
+			zadania.push({
+				id: Date.now(),
+				tresc: tresc,
+				typ: typ,
+				zrobione: false,
+				data: dataVal, // Zapisujemy datę wybraną przez użytkownika
+			});
+			localStorage.setItem("zadania", JSON.stringify(zadania));
+			inputZadanieTresc.value = "";
+			renderujZadania();
+		}
+	});
+}
+
+// 2. Nawigacja po dniach (Strzałki)
+if (btnPrevDay) {
+	btnPrevDay.addEventListener("click", () => {
+		aktualnyDzienWidoku.setDate(aktualnyDzienWidoku.getDate() - 1);
+		renderujZadania();
+	});
+}
+if (btnNextDay) {
+	btnNextDay.addEventListener("click", () => {
+		aktualnyDzienWidoku.setDate(aktualnyDzienWidoku.getDate() + 1);
+		renderujZadania();
+	});
+}
+
+// 3. Renderowanie list zadań
+function renderujZadania() {
+	// A. Ustalenie daty widoku (Dziś, Jutro, czy inna data?)
+	const dzisStr = formatDate(new Date());
+	const widokStr = formatDate(aktualnyDzienWidoku);
+
+	let naglowek = widokStr;
+	const jutro = new Date();
+	jutro.setDate(jutro.getDate() + 1);
+	const wczoraj = new Date();
+	wczoraj.setDate(wczoraj.getDate() - 1);
+
+	if (widokStr === dzisStr) naglowek = "Dziś (" + widokStr + ")";
+	else if (widokStr === formatDate(jutro))
+		naglowek = "Jutro (" + widokStr + ")";
+	else if (widokStr === formatDate(wczoraj))
+		naglowek = "Wczoraj (" + widokStr + ")";
+
+	if (naglowekDataDzienne) naglowekDataDzienne.innerText = naglowek;
+
+	// B. Czyszczenie list
+	listaDzienne.innerHTML = "";
+	listaTygodniowe.innerHTML = "";
+	listaMiesieczne.innerHTML = "";
+	listaRoczne.innerHTML = "";
+
+	// C. Sterowanie widocznością kolumn (zgodnie z ustawieniami)
+	// Używamy .closest('.karta') aby ukryć całą ramkę kolumny
+	if (listaTygodniowe)
+		listaTygodniowe.closest(".karta").style.display = ustawienia.widokZadan
+			.pokazTygodniowe
+			? "flex"
+			: "none";
+	if (listaMiesieczne)
+		listaMiesieczne.closest(".karta").style.display = ustawienia.widokZadan
+			.pokazMiesieczne
+			? "flex"
+			: "none";
+	if (listaRoczne)
+		listaRoczne.closest(".karta").style.display = ustawienia.widokZadan
+			.pokazRoczne
+			? "flex"
+			: "none";
+
+	let doneDaily = 0;
+	let totalDaily = 0;
+
+	// D. Sortowanie po dacie rosnąco
+	const posortowane = [...zadania].sort((a, b) => a.data.localeCompare(b.data));
+
+	posortowane.forEach(z => {
+		const li = document.createElement("li");
+		const stylTekstu = z.zrobione
+			? "text-decoration: line-through; opacity: 0.6;"
+			: "";
+		const ikona = z.zrobione ? "✅" : "⬜";
+
+		// Etykieta daty (dla zadań niedziennych, żeby wiedzieć na kiedy są)
+		const dataBadge = `<span style="font-size:10px; background:#eee; padding:2px 4px; border-radius:4px; margin-left:5px; color:#555;">${z.data}</span>`;
+
+		li.style.display = "flex";
+		li.style.justifyContent = "space-between";
+		li.style.alignItems = "center";
+		li.style.marginBottom = "8px";
+		li.style.padding = "8px";
+		li.style.background = "#f9f9f9";
+		li.style.borderRadius = "5px";
+		li.style.border = "1px solid #eee";
+
+		li.innerHTML = `
+            <div style="display:flex; flex-direction:column; cursor:pointer; flex:1;" onclick="toggleZadanie(${
+							z.id
+						})">
+                <div style="display:flex; align-items:center;">
+                    <span style="margin-right:10px; font-size:1.2em;">${ikona}</span>
+                    <span style="${stylTekstu}">${z.tresc}</span>
+                </div>
+                ${z.typ !== "dzienne" ? dataBadge : ""} 
+            </div>
+            <button onclick="usunZadanie(${
+							z.id
+						})" style="background:none; border:none; cursor:pointer; opacity:0.5; font-size:16px;">❌</button>
+        `;
+
+		// E. Przydział do kolumn
+		if (z.typ === "dzienne") {
+			// Pokazujemy TYLKO jeśli data zadania zgadza się z aktualnym widokiem
+			if (z.data === widokStr) {
+				listaDzienne.appendChild(li);
+				totalDaily++;
+				if (z.zrobione) doneDaily++;
+			}
+		} else if (z.typ === "tygodniowe") {
+			listaTygodniowe.appendChild(li);
+		} else if (z.typ === "miesieczne") {
+			listaMiesieczne.appendChild(li);
+		} else if (z.typ === "roczne") {
+			listaRoczne.appendChild(li);
+		}
+	});
+
+	// F. Aktualizacja paska postępu (tylko dla widoku dnia)
+	if (totalDaily > 0) {
+		const percent = Math.round((doneDaily / totalDaily) * 100);
+		progressFill.style.width = `${percent}%`;
+		progressText.innerText = `${doneDaily}/${totalDaily} (${percent}%)`;
+	} else {
+		progressFill.style.width = "0%";
+		progressText.innerText = "0/0";
+	}
+}
+
+// Globalne funkcje akcji
+window.toggleZadanie = function (id) {
+	const idx = zadania.findIndex(z => z.id === id);
+	if (idx !== -1) {
+		zadania[idx].zrobione = !zadania[idx].zrobione;
+		localStorage.setItem("zadania", JSON.stringify(zadania));
+		renderujZadania();
+	}
+};
+
+window.usunZadanie = function (id) {
+	if (confirm("Usunąć zadanie?")) {
+		zadania = zadania.filter(z => z.id !== id);
+		localStorage.setItem("zadania", JSON.stringify(zadania));
+		renderujZadania();
+	}
+};
+
+// --- Inicjalizacja nasłuchiwaczy Ustawień ---
+function inicjalizujUstawieniaWidoku() {
+	if (checkColTyg) {
+		checkColTyg.checked = ustawienia.widokZadan.pokazTygodniowe;
+		checkColTyg.addEventListener("change", e => {
+			ustawienia.widokZadan.pokazTygodniowe = e.target.checked;
+			zapiszUstawienia();
+			renderujZadania();
+		});
+	}
+	if (checkColMies) {
+		checkColMies.checked = ustawienia.widokZadan.pokazMiesieczne;
+		checkColMies.addEventListener("change", e => {
+			ustawienia.widokZadan.pokazMiesieczne = e.target.checked;
+			zapiszUstawienia();
+			renderujZadania();
+		});
+	}
+	if (checkColRok) {
+		checkColRok.checked = ustawienia.widokZadan.pokazRoczne;
+		checkColRok.addEventListener("change", e => {
+			ustawienia.widokZadan.pokazRoczne = e.target.checked;
+			zapiszUstawienia();
+			renderujZadania();
+		});
+	}
+}
+
+// ==========================================
+// 6. FINANSE - OBSŁUGA FORMULARZA I FILTRÓW
 // ==========================================
 
 formularz.addEventListener("submit", function (e) {
@@ -226,7 +480,7 @@ formularz.addEventListener("submit", function (e) {
 
 	if (trybEdycji) {
 		const idx = transakcje.findIndex(t => t.id === idEdytowanejTransakcji);
-		if (idx !== -1) {
+		if (idx !== -1)
 			transakcje[idx] = {
 				id: idEdytowanejTransakcji,
 				opis,
@@ -235,7 +489,6 @@ formularz.addEventListener("submit", function (e) {
 				data,
 				kategoria: kat,
 			};
-		}
 		trybEdycji = false;
 		idEdytowanejTransakcji = null;
 		btnSubmit.innerText = "Dodaj";
@@ -277,12 +530,11 @@ checkboxRok.addEventListener("change", () => {
 	}
 	odswiezWidoki();
 });
-
 inputSzukaj.addEventListener("input", odswiezWidoki);
 selectFiltrTyp.addEventListener("change", odswiezWidoki);
 selectSortuj.addEventListener("change", odswiezWidoki);
 
-// --- WYKRESY ---
+// Wykresy i Backup
 btnWydatki.addEventListener("click", () => {
 	aktualnyTypWykresu = "wydatek";
 	btnWydatki.classList.add("aktywny");
@@ -297,7 +549,6 @@ btnPrzychody.addEventListener("click", () => {
 	tytulWykresu.innerText = "Przychody";
 	rysujWykresKolowy();
 });
-
 btnRankingWydatki.addEventListener("click", () => {
 	aktualnyTypRankingu = "wydatek";
 	btnRankingWydatki.classList.add("aktywny");
@@ -313,11 +564,11 @@ btnRankingPrzychody.addEventListener("click", () => {
 	rysujRanking();
 });
 
-// --- BACKUP ---
 btnEksport.addEventListener("click", () => {
-	const blob = new Blob([JSON.stringify({ transakcje, ustawienia }, null, 2)], {
-		type: "application/json",
-	});
+	const blob = new Blob(
+		[JSON.stringify({ transakcje, ustawienia, zadania }, null, 2)],
+		{ type: "application/json" }
+	);
 	const url = URL.createObjectURL(blob);
 	const a = document.createElement("a");
 	a.href = url;
@@ -335,8 +586,10 @@ inputImport.addEventListener("change", e => {
 			if (d.transakcje && d.ustawienia && confirm("Nadpisać dane?")) {
 				transakcje = d.transakcje;
 				ustawienia = d.ustawienia;
+				if (d.zadania) zadania = d.zadania;
 				zapiszDane();
 				zapiszUstawienia();
+				localStorage.setItem("zadania", JSON.stringify(zadania));
 				startAplikacji();
 				alert("Gotowe!");
 			}
@@ -355,10 +608,6 @@ function toggleMenu() {
 if (btnMobileMenu) btnMobileMenu.addEventListener("click", toggleMenu);
 if (overlay) overlay.addEventListener("click", toggleMenu);
 
-// ==========================================
-// 6. LOGIKA
-// ==========================================
-
 function zapiszDane() {
 	localStorage.setItem("transakcje", JSON.stringify(transakcje));
 }
@@ -371,37 +620,12 @@ function formatujKwote(k) {
 		.replace(/\u00a0/g, " ");
 }
 
-window.edytujTransakcje = function (id) {
-	zmienWidok("pulpit");
-	const t = transakcje.find(x => x.id === id);
-	if (!t) return;
-	inputOpis.value = t.opis;
-	inputKwota.value = t.kwota;
-	inputData.value = t.data;
-	inputTyp.value = t.typ;
-	aktualizujSelectKategorii();
-	inputKategoria.value = t.kategoria;
-	trybEdycji = true;
-	idEdytowanejTransakcji = id;
-	btnSubmit.innerText = "Zapisz zmiany";
-	btnSubmit.style.backgroundColor = "#27ae60";
-};
-window.usunTransakcje = function (id) {
-	if (confirm("Usunąć?")) {
-		transakcje = transakcje.filter(t => t.id !== id);
-		zapiszDane();
-		aktualizujWidok();
-	}
-};
-
-// --- Wybór kategorii w formularzu ---
 function aktualizujSelectKategorii() {
 	const t = inputTyp.value;
 	if (ustawienia.kategorie && ustawienia.kategorie[t]) {
 		const kat = ustawienia.kategorie[t].sort((a, b) =>
 			a.nazwa.localeCompare(b.nazwa)
 		);
-
 		inputKategoria.innerHTML = "";
 		kat.forEach(k => {
 			const o = document.createElement("option");
@@ -412,47 +636,37 @@ function aktualizujSelectKategorii() {
 	}
 }
 
-// --- Wyświetlanie listy kategorii w ustawieniach ---
 function renderujListyKategoriiWUstawieniach() {
 	const gen = (t, el) => {
 		el.innerHTML = "";
 		if (!ustawienia.kategorie[t]) return;
-
 		ustawienia.kategorie[t]
 			.sort((a, b) => a.nazwa.localeCompare(b.nazwa))
 			.forEach(k => {
 				const li = document.createElement("li");
-
 				const span = document.createElement("span");
 				span.innerText = k.nazwa.charAt(0).toUpperCase() + k.nazwa.slice(1);
-
 				const divAkcje = document.createElement("div");
 				divAkcje.style.display = "flex";
 				divAkcje.style.alignItems = "center";
-
 				const btnUsun = document.createElement("button");
 				btnUsun.innerText = "Usuń";
 				btnUsun.style.marginLeft = "5px";
 				btnUsun.style.fontSize = "12px";
 				btnUsun.onclick = () => usunKategorie(t, k.nazwa);
-
 				divAkcje.appendChild(btnUsun);
-
 				li.appendChild(span);
 				li.appendChild(divAkcje);
 				el.appendChild(li);
 			});
 	};
-
 	gen("wydatek", listaKategoriiWydatki);
 	gen("przychod", listaKategoriiPrzychody);
 }
 
-// --- Dodawanie nowej kategorii ---
 btnDodajKategorie.addEventListener("click", () => {
 	const nazwa = inputNowaKategoria.value.trim().toLowerCase();
 	const typ = selectNowaKategoriaTyp.value;
-
 	if (nazwa) {
 		const istnieje = ustawienia.kategorie[typ].some(k => k.nazwa === nazwa);
 		if (!istnieje) {
@@ -480,21 +694,15 @@ window.usunKategorie = function (typ, nazwaDoUsuniecia) {
 
 function pobierzTransakcje() {
 	let dane = [...transakcje];
-
-	// A. Filtrowanie Daty
 	if (checkboxRok.checked) {
 		dane = dane.filter(t => t.data.startsWith(selectFiltrRok.value));
 	} else {
 		dane = dane.filter(t => t.data.startsWith(inputFiltrData.value));
 	}
-
-	// B. Filtrowanie Typu
 	const wybranyTyp = selectFiltrTyp.value;
 	if (wybranyTyp !== "wszystkie") {
 		dane = dane.filter(t => t.typ === wybranyTyp);
 	}
-
-	// C. Wyszukiwarka
 	const fraza = inputSzukaj.value.toLowerCase().trim();
 	if (fraza) {
 		dane = dane.filter(
@@ -504,23 +712,22 @@ function pobierzTransakcje() {
 		);
 	}
 
-	// D. Sortowanie
+	// SORTOWANIE (POPRAWIONE)
 	const sortTyp = selectSortuj.value;
 	dane.sort((a, b) => {
+		const valA = a.typ === "wydatek" ? -a.kwota : a.kwota;
+		const valB = b.typ === "wydatek" ? -b.kwota : b.kwota;
 		if (sortTyp === "data-nowe") return new Date(b.data) - new Date(a.data);
 		if (sortTyp === "data-stare") return new Date(a.data) - new Date(b.data);
-		if (sortTyp === "kwota-wysoka") return b.kwota - a.kwota;
-		if (sortTyp === "kwota-niska") return a.kwota - b.kwota;
+		if (sortTyp === "kwota-wysoka") return valB - valA;
+		if (sortTyp === "kwota-niska") return valA - valB;
 		return 0;
 	});
-
 	return dane;
 }
 
-// --- GŁÓWNA FUNKCJA RENDERUJĄCA ---
 function aktualizujWidok() {
 	if (inputKategoria.children.length === 0) aktualizujSelectKategorii();
-
 	if (!checkboxRok.checked) {
 		const m = [
 			"styczeń",
@@ -540,14 +747,11 @@ function aktualizujWidok() {
 		if (mies)
 			tytulSalda.innerText = `Saldo w miesiącu ${m[parseInt(mies) - 1]} ${r}:`;
 	}
-
 	const widoczne = pobierzTransakcje();
 	let suma = 0;
 	let sumaPrzych = 0;
 	let sumaWyd = 0;
-
 	listaHTML.innerHTML = "";
-
 	widoczne.forEach(t => {
 		if (t.typ === "przychod") {
 			suma += t.kwota;
@@ -556,53 +760,46 @@ function aktualizujWidok() {
 			suma -= t.kwota;
 			sumaWyd += t.kwota;
 		}
-
 		const li = document.createElement("li");
 		li.classList.add(t.typ === "przychod" ? "plus" : "minus");
 		li.innerHTML = `<div class="info"><span class="data">${
 			t.data
 		}</span><span class="kategoria">(${t.kategoria})</span><strong>${
 			t.opis
-		}</strong></div>
-                        <div class="kwota"><span>${
-													t.typ === "przychod" ? "+" : "-"
-												}${formatujKwote(t.kwota)}</span>
-                        <div class="akcje-btn"><button class="btn-edytuj" onclick="edytujTransakcje(${
-													t.id
-												})">✏️</button><button class="btn-usun" onclick="usunTransakcje(${
+		}</strong></div><div class="kwota"><span>${
+			t.typ === "przychod" ? "+" : "-"
+		}${formatujKwote(
+			t.kwota
+		)}</span><div class="akcje-btn"><button class="btn-edytuj" onclick="edytujTransakcje(${
+			t.id
+		})">✏️</button><button class="btn-usun" onclick="usunTransakcje(${
 			t.id
 		})">✖</button></div></div>`;
 		listaHTML.appendChild(li);
 	});
-
 	stanKonta.innerText = formatujKwote(suma);
 	if (sumaPrzychodowHTML)
 		sumaPrzychodowHTML.innerText = formatujKwote(sumaPrzych);
 	if (sumaWydatkowHTML) sumaWydatkowHTML.innerText = formatujKwote(sumaWyd);
-
 	rysujWykresKolowy(widoczne);
 	rysujWykresLiniowy(widoczne);
 	rysujWykresSlupkowy(widoczne);
 	rysujRanking(widoczne);
 }
 
-// --- WYKRESY (Funkcje pomocnicze) ---
 function rysujWykresKolowy(dane) {
 	if (!dane) dane = pobierzTransakcje();
 	const filtrowane = dane.filter(t => t.typ === aktualnyTypWykresu);
 	if (wykresKolowy) wykresKolowy.destroy();
 	if (filtrowane.length === 0 && window.innerWidth > 768) return;
-
 	const sumy = {};
 	let total = 0;
 	filtrowane.forEach(t => {
 		sumy[t.kategoria] = (sumy[t.kategoria] || 0) + t.kwota;
 		total += t.kwota;
 	});
-
 	const labels = Object.keys(sumy).sort((a, b) => a.localeCompare(b));
 	const formattedTotal = formatujKwote(total);
-
 	const centerTextPlugin = {
 		id: "centerText",
 		beforeDraw: function (chart) {
@@ -620,7 +817,6 @@ function rysujWykresKolowy(dane) {
 			ctx.save();
 		},
 	};
-
 	wykresKolowy = new Chart(ctxDoughnut, {
 		type: "doughnut",
 		data: {
@@ -656,29 +852,24 @@ function rysujWykresKolowy(dane) {
 		plugins: [centerTextPlugin],
 	});
 }
-
 function rysujWykresLiniowy(dane) {
 	if (!dane) dane = pobierzTransakcje();
 	if (wykresLiniowy) wykresLiniowy.destroy();
 	if (dane.length === 0 && window.innerWidth > 768) return;
-
 	const chronologiczne = [...dane].sort((a, b) => (a.data > b.data ? 1 : -1));
 	const labels = [];
 	const values = [];
 	let saldo = 0;
 	const sumyDni = {};
-
 	chronologiczne.forEach(t => {
 		const zmiana = t.typ === "przychod" ? t.kwota : -t.kwota;
 		sumyDni[t.data] = (sumyDni[t.data] || 0) + zmiana;
 	});
-
 	for (const [data, zmiana] of Object.entries(sumyDni)) {
 		saldo += zmiana;
 		labels.push(data.slice(-5));
 		values.push(saldo);
 	}
-
 	wykresLiniowy = new Chart(ctxLine, {
 		type: "line",
 		data: {
@@ -702,12 +893,10 @@ function rysujWykresLiniowy(dane) {
 		},
 	});
 }
-
 function rysujWykresSlupkowy(dane) {
 	if (!dane) dane = pobierzTransakcje();
 	if (wykresSlupkowy) wykresSlupkowy.destroy();
 	if (dane.length === 0 && window.innerWidth > 768) return;
-
 	if (checkboxRok.checked) {
 		const nazwyMcy = [
 			"Sty",
@@ -725,13 +914,11 @@ function rysujWykresSlupkowy(dane) {
 		];
 		const przychodyMcy = new Array(12).fill(0);
 		const wydatkiMcy = new Array(12).fill(0);
-
 		dane.forEach(t => {
 			const mcIndex = parseInt(t.data.split("-")[1]) - 1;
 			if (t.typ === "przychod") przychodyMcy[mcIndex] += t.kwota;
 			else wydatkiMcy[mcIndex] += t.kwota;
 		});
-
 		wykresSlupkowy = new Chart(ctxBar, {
 			type: "bar",
 			data: {
@@ -780,24 +967,20 @@ function rysujWykresSlupkowy(dane) {
 		});
 	}
 }
-
 function rysujRanking(dane) {
 	if (!dane) dane = pobierzTransakcje();
 	if (wykresRanking) wykresRanking.destroy();
 	const przefiltrowane = dane.filter(t => t.typ === aktualnyTypRankingu);
 	if (przefiltrowane.length === 0 && window.innerWidth > 768) return;
-
 	const sumy = {};
 	przefiltrowane.forEach(
 		t => (sumy[t.kategoria] = (sumy[t.kategoria] || 0) + t.kwota)
 	);
-
 	const sorted = Object.entries(sumy)
 		.sort((a, b) => b[1] - a[1])
 		.slice(0, 5);
 	const kolorSlupka = aktualnyTypRankingu === "wydatek" ? "#FF9F40" : "#48bb78";
 	const etykieta = aktualnyTypRankingu === "wydatek" ? "Wydatki" : "Przychody";
-
 	wykresRanking = new Chart(ctxRanking, {
 		type: "bar",
 		indexAxis: "y",
